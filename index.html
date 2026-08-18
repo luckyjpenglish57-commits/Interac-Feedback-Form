@@ -3,55 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interac Lesson Feedback Portal</title>
+    <title>J-P Network English - Lesson Feedback Portal</title>
     <style>
         :root {
-            --primary: #1d4ed8;
-            --primary-hover: #1e40af;
-            --bg: #f1f5f9;
+            --primary: #800020;         /* Maroon Color */
+            --primary-hover: #5b0017;   /* Darker Maroon */
+            --bg: #f8fafc;
             --card-bg: #ffffff;
-            --text: #0f172a;
+            --text: #1e293b;
             --border: #cbd5e1;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .container { width: 100%; max-width: 650px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); border: 1px solid var(--border); overflow: hidden; }
+        .container { width: 100%; max-width: 680px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 10px 25px rgba(128,0,32,0.12); border: 1px solid var(--border); overflow: hidden; }
         
-        .header { background: var(--primary); color: white; padding: 28px 20px; text-align: center; }
-        .header h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 6px; }
-        .header p { font-size: 0.9rem; opacity: 0.92; font-weight: 400; }
+        .header { background: #ffffff; padding: 24px 20px; text-align: center; border-bottom: 3px solid var(--primary); }
+        .header img { max-width: 180px; height: auto; margin-bottom: 12px; }
+        .header h1 { font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
+        .header p { font-size: 0.9rem; color: #64748b; font-weight: 500; }
         
         .form-body { padding: 28px 24px; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 8px; color: #334155; }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; outline: none; background-color: #fff; }
-        input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15); }
+        .form-group { margin-bottom: 18px; }
+        label { display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 6px; color: #334155; }
+        input, select, textarea { width: 100%; padding: 11px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.92rem; outline: none; background-color: #fff; }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.15); }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
         
         .step { display: none; }
         .step.active { display: block; }
 
         .btn-group { display: flex; gap: 10px; margin-top: 24px; }
-        .btn { flex: 1; padding: 14px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; }
+        .btn { flex: 1; padding: 13px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.98rem; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--primary-hover); }
         .btn-secondary { background: #e2e8f0; color: var(--text); }
         
         .success-message { display: none; text-align: center; padding: 40px 20px; }
+        .success-message h2 { color: var(--primary); margin-bottom: 8px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h1>Interac Lesson Feedback Portal</h1>
-        <p id="stepIndicator">Please make sure to submit your feedback correctly and on time.</p>
+        <img src="https://raw.githubusercontent.com/luckyjpenglish57-commits/Interac-Feedback-Form/main/logo.png" alt="J-P Network English Logo" onerror="this.style.display='none'">
+        <h1>Lesson Feedback Portal</h1>
+        <p id="stepIndicator">Section 1: General Details</p>
     </div>
 
     <div class="form-body" id="formContainer">
         <form id="feedbackForm">
             
+            <!-- SECTION 1: General Info -->
             <div class="step active" id="step1">
                 <div class="form-group">
                     <label>Email Address *</label>
@@ -69,9 +74,15 @@
                 </div>
                 <div class="form-group">
                     <label>Area (BOE) *</label>
-                    <select id="areaSelect" required onchange="updateSchools()">
+                    <select id="areaSelect" required onchange="onAreaChange()">
                         <option value="" disabled selected>-- Select Area (BOE) --</option>
                         <option value="Kanzaki City">Kanzaki City</option>
+                        <option value="Ureshino City">Ureshino City</option>
+                        <option value="Nogata City">Nogata City</option>
+                        <option value="Tottori City">Tottori City</option>
+                        <option value="Hirao Town">Hirao Town</option>
+                        <option value="Shime Town">Shime Town</option>
+                        <option value="Kanda City">Kanda City</option>
                     </select>
                 </div>
                 <div class="btn-group">
@@ -79,6 +90,7 @@
                 </div>
             </div>
 
+            <!-- SECTION 2: School & Lesson Details -->
             <div class="step" id="step2">
                 <div class="form-group">
                     <label>School *</label>
@@ -87,66 +99,64 @@
                     </select>
                 </div>
                 
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label>Group Name *</label>
-                        <select id="groupName" required>
-                            <option value="" disabled selected>-- Select Group --</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Number of Students *</label>
-                        <input type="number" id="numStudents" required placeholder="e.g. 25">
-                    </div>
+                <div class="form-group">
+                    <label id="groupLabel">Group Name / Meeting Group Email *</label>
+                    <select id="groupName" required>
+                        <option value="" disabled selected>-- Select Group --</option>
+                    </select>
                 </div>
 
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label>Listening Skills *</label>
-                        <select id="listening" required>
-                            <option value="" disabled selected>-- Select --</option>
-                            <option value="3 - Excellent">3 - Excellent</option>
-                            <option value="2 - Good">2 - Good</option>
-                            <option value="1 - Poor">1 - Poor</option>
-                            <option value="0 - The student did not show up">0 - The student did not show up</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Speaking Skills *</label>
-                        <select id="speaking" required>
-                            <option value="" disabled selected>-- Select --</option>
-                            <option value="3 - Excellent">3 - Excellent</option>
-                            <option value="2 - Good">2 - Good</option>
-                            <option value="1 - Poor">1 - Poor</option>
-                            <option value="0 - The student did not show up">0 - The student did not show up</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label>Proactiveness *</label>
-                        <select id="proactiveness" required>
-                            <option value="" disabled selected>-- Select --</option>
-                            <option value="3 - Excellent">3 - Excellent</option>
-                            <option value="2 - Good">2 - Good</option>
-                            <option value="1 - Poor">1 - Poor</option>
-                            <option value="0 - The student did not show up">0 - The student did not show up</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Attitude *</label>
-                        <select id="attitude" required>
-                            <option value="" disabled selected>-- Select --</option>
-                            <option value="3 - Excellent">3 - Excellent</option>
-                            <option value="2 - Good">2 - Good</option>
-                            <option value="1 - Poor">1 - Poor</option>
-                            <option value="0 - The student did not show up">0 - The student did not show up</option>
-                        </select>
+                <!-- Dynamic Grade / Class / Period Fields (for Ureshino & others) -->
+                <div id="extraFields" style="display: none;">
+                    <div class="grid-3">
+                        <div class="form-group">
+                            <label>Grade *</label>
+                            <select id="grade">
+                                <option value="" disabled selected>-- Select --</option>
+                                <option value="1st Grade">1st Grade</option>
+                                <option value="2nd Grade">2nd Grade</option>
+                                <option value="3rd Grade">3rd Grade</option>
+                                <option value="4th Grade">4th Grade</option>
+                                <option value="5th Grade">5th Grade</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Class *</label>
+                            <select id="classNum">
+                                <option value="" disabled selected>-- Select --</option>
+                                <option value="Class 1">Class 1</option>
+                                <option value="Class 2">Class 2</option>
+                                <option value="Class 3">Class 3</option>
+                                <option value="Class 4">Class 4</option>
+                                <option value="Class 5">Class 5</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Lesson Period *</label>
+                            <select id="lessonPeriod">
+                                <option value="" disabled selected>-- Select --</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
                 <div class="form-group">
+                    <label>Number of Students *</label>
+                    <select id="numStudents" required>
+                        <option value="" disabled selected>-- Select --</option>
+                        <!-- Populated dynamically or manual -->
+                    </select>
+                </div>
+
+                <!-- Dynamic Evaluation / Ratings Container -->
+                <div id="ratingsContainer"></div>
+
+                <div class="form-group" style="margin-top: 15px;">
                     <label>Message of encouragement or feedback for your student(s)</label>
                     <textarea id="messageEncouragement" rows="3" placeholder="*If your student did not show up, please leave them a positive comment about English."></textarea>
                 </div>
@@ -174,29 +184,26 @@
 </div>
 
 <script>
-    // SCHOOLS PER AREA DATA
     const schoolData = {
-        "Kanzaki City": ["Saigo ES", "Saigo JHS", "Tobu ES", "Chubu ES", "Niiyama ES", "Kanzaki ES", "Sefuri ES", "Seibu ES"]
+        "Kanzaki City": ["Saigo ES", "Saigo JHS", "Tobu ES", "Chubu ES", "Niiyama ES", "Kanzaki ES", "Sefuri ES", "Seibu ES"],
+        "Ureshino City": ["Gochoda ES", "Kuma ES", "Okusano ES", "Onohara ES", "Shiota ES", "Todoroki ES", "Ureshino ES", "Yoshida ES", "Onohara JHS"],
+        "Nogata City": ["Nogata ES"],
+        "Tottori City": ["Tottori ES"],
+        "Hirao Town": ["Hirao ES"],
+        "Shime Town": ["Shime ES"],
+        "Kanda City": ["Kanda ES"]
     };
 
-    // AUTOMATIC GENERATION OF GROUP NAMES (Kanzaki 1_A to Kanzaki 40_A, 41_B to 80_B)
-    window.onload = function() {
-        const groupSelect = document.getElementById("groupName");
-        for (let i = 1; i <= 80; i++) {
-            const suffix = i <= 40 ? "A" : "B";
-            const groupText = `Kanzaki ${i}_${suffix}`;
-            const opt = document.createElement("option");
-            opt.value = groupText;
-            opt.textContent = groupText;
-            groupSelect.appendChild(opt);
-        }
-    };
-
-    function updateSchools() {
+    function onAreaChange() {
         const area = document.getElementById("areaSelect").value;
         const schoolDropdown = document.getElementById("schoolSelect");
+        const groupSelect = document.getElementById("groupName");
+        const extraFields = document.getElementById("extraFields");
+        const numStudents = document.getElementById("numStudents");
+        const ratingsContainer = document.getElementById("ratingsContainer");
+
+        // Populate Schools
         schoolDropdown.innerHTML = '<option value="" disabled selected>-- Select School --</option>';
-        
         if (schoolData[area]) {
             schoolData[area].forEach(school => {
                 const opt = document.createElement("option");
@@ -204,6 +211,130 @@
                 opt.textContent = school;
                 schoolDropdown.appendChild(opt);
             });
+        }
+
+        // Reset Group Select
+        groupSelect.innerHTML = '<option value="" disabled selected>-- Select --</option>';
+
+        if (area === "Kanzaki City") {
+            extraFields.style.display = "none";
+            
+            // Kanzaki Groups (Kanzaki 1_A to 80_B)
+            for (let i = 1; i <= 80; i++) {
+                const suffix = i <= 40 ? "A" : "B";
+                const groupText = `Kanzaki ${i}_${suffix}`;
+                const opt = document.createElement("option");
+                opt.value = groupText;
+                opt.textContent = groupText;
+                groupSelect.appendChild(opt);
+            }
+
+            // Student Count (1 to 50)
+            numStudents.innerHTML = '<option value="" disabled selected>-- Select --</option>';
+            for (let i = 1; i <= 50; i++) {
+                const opt = document.createElement("option");
+                opt.value = i;
+                opt.textContent = i;
+                numStudents.appendChild(opt);
+            }
+
+            // Kanzaki Ratings UI
+            ratingsContainer.innerHTML = `
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Listening Skills *</label>
+                        <select id="q1" required>
+                            <option value="" disabled selected>-- Select --</option>
+                            <option value="3 - Excellent">3 - Excellent</option>
+                            <option value="2 - Good">2 - Good</option>
+                            <option value="1 - Poor">1 - Poor</option>
+                            <option value="0 - The student did not show up">0 - The student did not show up</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Speaking Skills *</label>
+                        <select id="q2" required>
+                            <option value="" disabled selected>-- Select --</option>
+                            <option value="3 - Excellent">3 - Excellent</option>
+                            <option value="2 - Good">2 - Good</option>
+                            <option value="1 - Poor">1 - Poor</option>
+                            <option value="0 - The student did not show up">0 - The student did not show up</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Proactiveness *</label>
+                        <select id="q3" required>
+                            <option value="" disabled selected>-- Select --</option>
+                            <option value="3 - Excellent">3 - Excellent</option>
+                            <option value="2 - Good">2 - Good</option>
+                            <option value="1 - Poor">1 - Poor</option>
+                            <option value="0 - The student did not show up">0 - The student did not show up</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Attitude *</label>
+                        <select id="q4" required>
+                            <option value="" disabled selected>-- Select --</option>
+                            <option value="3 - Excellent">3 - Excellent</option>
+                            <option value="2 - Good">2 - Good</option>
+                            <option value="1 - Poor">1 - Poor</option>
+                            <option value="0 - The student did not show up">0 - The student did not show up</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+        } else {
+            // Ureshino & other Areas
+            extraFields.style.display = "block";
+
+            // Ureshino Meeting Group Emails (01 to 33)
+            for (let i = 1; i <= 33; i++) {
+                const numStr = i < 10 ? `0${i}` : `${i}`;
+                const emailGroup = `GochodaJS_5-1_${numStr}@lit.co.jp`;
+                const opt = document.createElement("option");
+                opt.value = emailGroup;
+                opt.textContent = emailGroup;
+                groupSelect.appendChild(opt);
+            }
+
+            // Student Count (0 to 5)
+            numStudents.innerHTML = '<option value="" disabled selected>-- Select --</option>';
+            for (let i = 0; i <= 5; i++) {
+                const opt = document.createElement("option");
+                opt.value = i;
+                opt.textContent = i;
+                numStudents.appendChild(opt);
+            }
+
+            // Ureshino Ratings UI
+            ratingsContainer.innerHTML = `
+                <div class="form-group">
+                    <label>Ability of student(s) to converse in accordance with the lesson theme *</label>
+                    <select id="q1" required>
+                        <option value="" disabled selected>-- Select --</option>
+                        <option value="5 - Excellent (had a smooth conversation on the theme of the lesson with dialogue in both directions)">5 - Excellent</option>
+                        <option value="4 - Great (had a smooth conversation on the theme of the lesson and was able to answer the questions actively)">4 - Great</option>
+                        <option value="3 - Good (had a smooth conversation on the theme of the lesson)">3 - Good</option>
+                        <option value="2 - Fair (was able to engage in some conversation, but off-topic)">2 - Fair</option>
+                        <option value="1 - Need more effort (conversation didn't go well)">1 - Need more effort</option>
+                        <option value="0 - Student did not show up">0 - Student did not show up</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Level of student interest in engaging in conversation *</label>
+                    <select id="q2" required>
+                        <option value="" disabled selected>-- Select --</option>
+                        <option value="5 - Excellent (had a smooth conversation on the theme of the lesson with dialogue in both directions)">5 - Excellent</option>
+                        <option value="4 - Great (had a smooth conversation on the theme of the lesson and was able to answer the questions actively)">4 - Great</option>
+                        <option value="3 - Good (had a smooth conversation on the theme of the lesson)">3 - Good</option>
+                        <option value="2 - Fair (was able to engage in some conversation, but off-topic)">2 - Fair</option>
+                        <option value="1 - Need more effort (conversation didn't go well)">1 - Need more effort</option>
+                        <option value="0 - Student did not show up">0 - Student did not show up</option>
+                    </select>
+                </div>
+            `;
         }
     }
 
@@ -226,7 +357,7 @@
     function prevStep() {
         document.getElementById("step2").classList.remove("active");
         document.getElementById("step1").classList.add("active");
-        document.getElementById("stepIndicator").textContent = "Please make sure to submit your feedback correctly and on time.";
+        document.getElementById("stepIndicator").textContent = "Section 1: General Details";
     }
 
     // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE:
@@ -242,12 +373,15 @@
       data.date,                  // Date
       data.area,                  // Area (BOE)
       data.school,                // School
-      data.groupName,             // Group Name
+      data.groupName,             // Group Name / Meeting Group Email
+      data.grade || "N/A",        // Grade
+      data.classNum || "N/A",     // Class
+      data.lessonPeriod || "N/A", // Lesson Period
       data.numStudents,           // Number of Students
-      data.listening,             // Listening skills
-      data.speaking,              // Speaking skills
-      data.proactiveness,         // Proactiveness
-      data.attitude,              // Attitude
+      data.q1_rating || "N/A",    // Q1 Rating (Listening / Ability to Converse)
+      data.q2_rating || "N/A",    // Q2 Rating (Speaking / Level of Interest)
+      data.q3_rating || "N/A",    // Q3 Rating (Proactiveness)
+      data.q4_rating || "N/A",    // Q4 Rating (Attitude)
       data.messageEncouragement,  // Message of encouragement
       data.interacFeedback        // Comments/feedback for Interac
     ]);
@@ -259,22 +393,26 @@
       .setMimeType(ContentService.MimeType.JSON);
   }
 }
-
     document.getElementById('feedbackForm').addEventListener('submit', function(e) {
         e.preventDefault();
+
+        const area = document.getElementById('areaSelect').value;
 
         const payload = {
             email: document.getElementById('email').value,
             teacherName: document.getElementById('teacherName').value,
             date: document.getElementById('date').value,
-            area: document.getElementById('areaSelect').value,
+            area: area,
             school: document.getElementById('schoolSelect').value,
             groupName: document.getElementById('groupName').value,
+            grade: area !== "Kanzaki City" ? document.getElementById('grade').value : "N/A",
+            classNum: area !== "Kanzaki City" ? document.getElementById('classNum').value : "N/A",
+            lessonPeriod: area !== "Kanzaki City" ? document.getElementById('lessonPeriod').value : "N/A",
             numStudents: document.getElementById('numStudents').value,
-            listening: document.getElementById('listening').value,
-            speaking: document.getElementById('speaking').value,
-            proactiveness: document.getElementById('proactiveness').value,
-            attitude: document.getElementById('attitude').value,
+            q1_rating: document.getElementById('q1') ? document.getElementById('q1').value : "",
+            q2_rating: document.getElementById('q2') ? document.getElementById('q2').value : "",
+            q3_rating: document.getElementById('q3') ? document.getElementById('q3').value : "",
+            q4_rating: document.getElementById('q4') ? document.getElementById('q4').value : "",
             messageEncouragement: document.getElementById('messageEncouragement').value,
             interacFeedback: document.getElementById('interacFeedback').value
         };
