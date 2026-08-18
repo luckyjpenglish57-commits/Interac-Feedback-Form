@@ -6,9 +6,9 @@
     <title>Interac Lesson Feedback Portal</title>
     <style>
         :root {
-            --primary: #1e40af;
-            --primary-hover: #1e3a8a;
-            --bg: #f8fafc;
+            --primary: #1d4ed8;
+            --primary-hover: #1e40af;
+            --bg: #f1f5f9;
             --card-bg: #ffffff;
             --text: #0f172a;
             --border: #cbd5e1;
@@ -16,21 +16,24 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .container { width: 100%; max-width: 680px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); border: 1px solid var(--border); overflow: hidden; }
-        .header { background: var(--primary); color: white; padding: 24px; text-align: center; }
-        .header h1 { font-size: 1.5rem; margin-bottom: 6px; }
+        .container { width: 100%; max-width: 650px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); border: 1px solid var(--border); overflow: hidden; }
+        
+        .header { background: var(--primary); color: white; padding: 28px 20px; text-align: center; }
+        .header h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 6px; }
+        .header p { font-size: 0.9rem; opacity: 0.92; font-weight: 400; }
+        
         .form-body { padding: 28px 24px; }
-        .form-group { margin-bottom: 18px; }
-        label { display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 6px; color: #334155; }
-        input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95rem; outline: none; }
-        input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15); }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 8px; color: #334155; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; outline: none; background-color: #fff; }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
         
         .step { display: none; }
         .step.active { display: block; }
 
         .btn-group { display: flex; gap: 10px; margin-top: 24px; }
-        .btn { flex: 1; padding: 12px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.95rem; }
+        .btn { flex: 1; padding: 14px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--primary-hover); }
         .btn-secondary { background: #e2e8f0; color: var(--text); }
@@ -42,14 +45,13 @@
 
 <div class="container">
     <div class="header">
-        <h1>Lesson Feedback Portal</h1>
-        <p id="stepIndicator">Section 1: General Details</p>
+        <h1>Interac Lesson Feedback Portal</h1>
+        <p id="stepIndicator">Please make sure to submit your feedback correctly and on time.</p>
     </div>
 
     <div class="form-body" id="formContainer">
         <form id="feedbackForm">
             
-            <!-- SECTION 1: General Info -->
             <div class="step active" id="step1">
                 <div class="form-group">
                     <label>Email Address *</label>
@@ -69,9 +71,7 @@
                     <label>Area (BOE) *</label>
                     <select id="areaSelect" required onchange="updateSchools()">
                         <option value="" disabled selected>-- Select Area (BOE) --</option>
-                        <option value="Area 1">Area 1 (North BOE)</option>
-                        <option value="Area 2">Area 2 (South BOE)</option>
-                        <option value="Area 3">Area 3 (Central BOE)</option>
+                        <option value="Kanzaki City">Kanzaki City</option>
                     </select>
                 </div>
                 <div class="btn-group">
@@ -79,7 +79,6 @@
                 </div>
             </div>
 
-            <!-- SECTION 2: School & Lesson Details -->
             <div class="step" id="step2">
                 <div class="form-group">
                     <label>School *</label>
@@ -90,19 +89,10 @@
                 
                 <div class="grid-2">
                     <div class="form-group">
-                        <label>Group Name</label>
-                        <input type="text" id="groupName" placeholder="e.g. Group A">
-                    </div>
-                    <div class="form-group">
-                        <label>Grade *</label>
-                        <input type="text" id="grade" required placeholder="e.g. Grade 5 / ES 5">
-                    </div>
-                </div>
-
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label>Class *</label>
-                        <input type="text" id="classNum" required placeholder="e.g. Class 1">
+                        <label>Group Name *</label>
+                        <select id="groupName" required>
+                            <option value="" disabled selected>-- Select Group --</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Number of Students *</label>
@@ -112,29 +102,53 @@
 
                 <div class="grid-2">
                     <div class="form-group">
-                        <label>Ability of student(s) *</label>
-                        <select id="studentAbility" required>
+                        <label>Listening Skills *</label>
+                        <select id="listening" required>
                             <option value="" disabled selected>-- Select --</option>
-                            <option value="High">High</option>
-                            <option value="Average">Average</option>
-                            <option value="Low">Low</option>
-                            <option value="Mixed">Mixed</option>
+                            <option value="3 - Excellent">3 - Excellent</option>
+                            <option value="2 - Good">2 - Good</option>
+                            <option value="1 - Poor">1 - Poor</option>
+                            <option value="0 - The student did not show up">0 - The student did not show up</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Level of student interest *</label>
-                        <select id="studentInterest" required>
+                        <label>Speaking Skills *</label>
+                        <select id="speaking" required>
                             <option value="" disabled selected>-- Select --</option>
-                            <option value="High">High</option>
-                            <option value="Moderate">Moderate</option>
-                            <option value="Low">Low</option>
+                            <option value="3 - Excellent">3 - Excellent</option>
+                            <option value="2 - Good">2 - Good</option>
+                            <option value="1 - Poor">1 - Poor</option>
+                            <option value="0 - The student did not show up">0 - The student did not show up</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Proactiveness *</label>
+                        <select id="proactiveness" required>
+                            <option value="" disabled selected>-- Select --</option>
+                            <option value="3 - Excellent">3 - Excellent</option>
+                            <option value="2 - Good">2 - Good</option>
+                            <option value="1 - Poor">1 - Poor</option>
+                            <option value="0 - The student did not show up">0 - The student did not show up</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Attitude *</label>
+                        <select id="attitude" required>
+                            <option value="" disabled selected>-- Select --</option>
+                            <option value="3 - Excellent">3 - Excellent</option>
+                            <option value="2 - Good">2 - Good</option>
+                            <option value="1 - Poor">1 - Poor</option>
+                            <option value="0 - The student did not show up">0 - The student did not show up</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Message of encouragement or feedback for students</label>
-                    <textarea id="messageEncouragement" rows="2" placeholder="If your student did not show up, please leave this blank or state here."></textarea>
+                    <label>Message of encouragement or feedback for your student(s)</label>
+                    <textarea id="messageEncouragement" rows="3" placeholder="*If your student did not show up, please leave them a positive comment about English."></textarea>
                 </div>
 
                 <div class="form-group">
@@ -160,11 +174,22 @@
 </div>
 
 <script>
-    // Sample List of Schools per Area (Palitan batay sa tunay ninyong mga eskwelahan)
+    // SCHOOLS PER AREA DATA
     const schoolData = {
-        "Area 1": ["North Elementary School", "North Junior High School"],
-        "Area 2": ["South Elementary School", "South Junior High School"],
-        "Area 3": ["Central Pilot School", "Central High School"]
+        "Kanzaki City": ["Saigo ES", "Saigo JHS", "Tobu ES", "Chubu ES", "Niiyama ES", "Kanzaki ES", "Sefuri ES", "Seibu ES"]
+    };
+
+    // AUTOMATIC GENERATION OF GROUP NAMES (Kanzaki 1_A to Kanzaki 40_A, 41_B to 80_B)
+    window.onload = function() {
+        const groupSelect = document.getElementById("groupName");
+        for (let i = 1; i <= 80; i++) {
+            const suffix = i <= 40 ? "A" : "B";
+            const groupText = `Kanzaki ${i}_${suffix}`;
+            const opt = document.createElement("option");
+            opt.value = groupText;
+            opt.textContent = groupText;
+            groupSelect.appendChild(opt);
+        }
     };
 
     function updateSchools() {
@@ -201,7 +226,7 @@
     function prevStep() {
         document.getElementById("step2").classList.remove("active");
         document.getElementById("step1").classList.add("active");
-        document.getElementById("stepIndicator").textContent = "Section 1: General Details";
+        document.getElementById("stepIndicator").textContent = "Please make sure to submit your feedback correctly and on time.";
     }
 
     // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE:
@@ -211,20 +236,20 @@
     var data = JSON.parse(e.postData.contents);
     
     sheet.appendRow([
-      new Date(),                 // Col A: Timestamp
-      data.email,                 // Col B: Email Address
-      data.teacherName,           // Col C: Teacher Name
-      data.date,                  // Col D: Date
-      data.area,                  // Col E: Area (BOE)
-      data.school,                // Col F: School
-      data.groupName,             // Col G: Group Name
-      data.grade,                 // Col H: Grade
-      data.classNum,              // Col I: Class
-      data.numStudents,           // Col J: Number of Students
-      data.studentAbility,        // Col K: Ability of student(s)
-      data.studentInterest,       // Col L: Level of student interest
-      data.messageEncouragement,  // Col M: Message of encouragement
-      data.interacFeedback        // Col N: Comments or feedback for Interac
+      new Date(),                 // Timestamp
+      data.email,                 // Email Address
+      data.teacherName,           // Teacher Name
+      data.date,                  // Date
+      data.area,                  // Area (BOE)
+      data.school,                // School
+      data.groupName,             // Group Name
+      data.numStudents,           // Number of Students
+      data.listening,             // Listening skills
+      data.speaking,              // Speaking skills
+      data.proactiveness,         // Proactiveness
+      data.attitude,              // Attitude
+      data.messageEncouragement,  // Message of encouragement
+      data.interacFeedback        // Comments/feedback for Interac
     ]);
     
     return ContentService.createTextOutput(JSON.stringify({ "result": "success" }))
@@ -245,11 +270,11 @@
             area: document.getElementById('areaSelect').value,
             school: document.getElementById('schoolSelect').value,
             groupName: document.getElementById('groupName').value,
-            grade: document.getElementById('grade').value,
-            classNum: document.getElementById('classNum').value,
             numStudents: document.getElementById('numStudents').value,
-            studentAbility: document.getElementById('studentAbility').value,
-            studentInterest: document.getElementById('studentInterest').value,
+            listening: document.getElementById('listening').value,
+            speaking: document.getElementById('speaking').value,
+            proactiveness: document.getElementById('proactiveness').value,
+            attitude: document.getElementById('attitude').value,
             messageEncouragement: document.getElementById('messageEncouragement').value,
             interacFeedback: document.getElementById('interacFeedback').value
         };
