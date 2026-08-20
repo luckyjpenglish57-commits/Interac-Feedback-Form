@@ -347,7 +347,8 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyZx_0u-Gfdasj_EIaEZbNDtnqmwcOUQvdT-1belD1fXRyDwXcxJsqXUUQHAOsQRQk/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyZx_0u-Gfdasj_EIaEZbNDtnqmwcOUQvdT-1belD1fXRyDWXcxJsqXUUQHAOsQRQk/exec";
+
     let sheetData = { teachers: [], schools: [], groups: [] };
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -553,7 +554,6 @@
 
     function prevStep() {
         document.getElementById("step2").classList.remove("active");
-        document.getElementById("step1").classList.active = false;
         document.getElementById("step1").classList.add("active");
         document.getElementById("stepIndicator").textContent = "Section 1: General Details";
     }
