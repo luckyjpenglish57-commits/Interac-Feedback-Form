@@ -77,8 +77,8 @@
 
                 <div class="grid-2">
                     <div class="form-group">
-                        <label>Lesson Date *</label>
-                        <input type="date" id="lessonDate" required>
+                        <label>Date *</label>
+                        <input type="date" id="date" required>
                     </div>
                     <div class="form-group">
                         <label>Area (BOE) *</label>
@@ -372,7 +372,6 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwuVyMt3ev6Tr_3gwnQsWzjzruSiaEUyeXkumhbM31Gs4zWmV9EzylG8NnDErtbq8Y/exec";
 
     let sheetData = { teachers: [], schools: [], groups: [] };
-    let currentStep = 1;
 
     window.addEventListener('DOMContentLoaded', () => {
         fetch(SCRIPT_URL)
@@ -456,11 +455,6 @@
         });
     }
 
-    function setRequired(id, isReq) {
-        const el = document.getElementById(id);
-        if (el) el.required = isReq;
-    }
-
     function toggleChikuseiPT() {
         const hasPT = document.getElementById("hasPT").value;
         const ptDetails = document.getElementById("ptDetails");
@@ -503,6 +497,7 @@
         const interacLabel = document.getElementById("interacLabel");
         const areaLower = selectedArea.toLowerCase();
 
+        // Sakai City Adjustments
         if (areaLower.includes("sakai")) {
             document.getElementById("gradeGroup").classList.add("hidden");
             document.getElementById("groupNumWrapper").classList.add("hidden");
@@ -586,112 +581,140 @@
         onSchoolOrGradeChange();
     }
 
+    function setRequired(id, isReq) {
+        const el = document.getElementById(id);
+        if (el) el.required = isReq;
+    }
+
     function onSchoolOrGradeChange() {
-        const selectedArea = document.getElementById("areaSelect").value;
-        const selectedSchool = document.getElementById("schoolSelect").value;
-        const selectedGrade = document.getElementById("grade").value;
-        const selectedClass = document.getElementById("classNum").value;
-        const selectedGroupNum = document.getElementById("groupNum").value;
+        const area = document.getElementById("areaSelect").value;
+        const school = document.getElementById("schoolSelect").value;
+        const grade = document.getElementById("grade").value;
+        const classNum = document.getElementById("classNum").value;
+        const groupNum = document.getElementById("groupNum").value;
+        const groupSelect = document.getElementById("groupName");
 
-        const groupDropdown = document.getElementById("groupName");
-        groupDropdown.innerHTML = '<option value="" disabled selected>-- Select Group --</option>';
+        if (!groupSelect) return;
+        groupSelect.innerHTML = '<option value="" disabled selected>-- Select --</option>';
 
-        if (!selectedArea || !selectedSchool) return;
+        if (!school) return;
 
-        let filteredGroups = sheetData.groups.filter(g => g.area === selectedArea && g.school === selectedSchool);
+        const matchedGroup = sheetData.groups.find(g => 
+            g.area === area && g.school === school && (g.grade === "All" || g.grade === grade) && (g.classNum === "All" || g.classNum === classNum)
+        );
 
-        if (selectedGrade) {
-            filteredGroups = filteredGroups.filter(g => g.grade === selectedGrade);
-        }
-        if (selectedClass) {
-            filteredGroups = filteredGroups.filter(g => g.classNum === selectedClass);
-        }
+        if (matchedGroup) {
+            let groupVal = matchedGroup.groupName;
+            
+            if (groupNum && !groupVal.includes(`_${groupNum}`)) {
+                const parts = groupVal.split("@");
+                groupVal = `${parts[0]}_${groupNum}@${parts[1]}`;
+            }
 
-        filteredGroups.forEach(g => {
             const opt = document.createElement("option");
-            opt.value = g.groupName;
-            opt.textContent = g.groupName;
-            groupDropdown.appendChild(opt);
-        });
+            opt.value = groupVal;
+            opt.textContent = groupVal;
+            groupSelect.appendChild(opt);
+            groupSelect.value = groupVal;
+        } else if (grade && classNum) {
+            const cleanSchool = school.replace(/\s+/g, '');
+            const gradeDigit = grade.replace(/[^0-9]/g, '');
+            const classClean = classNum.replace("Class ", "");
+
+            let generated = `${cleanSchool}_${gradeDigit}-${classClean}`;
+            if (groupNum) {
+                generated += `_${groupNum}`;
+            }
+            generated += `@lit.co.jp`;
+
+            const opt = document.createElement("option");
+            opt.value = generated;
+            opt.textContent = generated;
+            groupSelect.appendChild(opt);
+            groupSelect.value = generated;
+        }
     }
 
     function nextStep() {
-        const currentInputs = document.getElementById(`step${currentStep}`).querySelectorAll("input, select, textarea");
-        for (let input of currentInputs) {
-            if (!input.checkValidity()) {
-                input.reportValidity();
-                return;
-            }
+        const email = document.getElementById("email").value;
+        const teacher = document.getElementById("teacherNameSelect").value;
+        const date = document.getElementById("date").value;
+        const area = document.getElementById("areaSelect").value;
+
+        if(!email || !teacher || !date || !area) {
+            alert("Please fill in all required fields in Section 1.");
+            return;
         }
-        document.getElementById(`step${currentStep}`).classList.remove("active");
-        currentStep++;
-        document.getElementById(`step${currentStep}`).classList.add("active");
+
+        updateQuestionnaireVisibility(area);
+
+        document.getElementById("step1").classList.remove("active");
+        document.getElementById("step2").classList.add("active");
+        document.getElementById("stepIndicator").textContent = "Section 2: School & Lesson Details";
     }
 
     function prevStep() {
-        document.getElementById(`step${currentStep}`).classList.remove("active");
-        currentStep--;
-        document.getElementById(`step${currentStep}`).classList.add("active");
+        document.getElementById("step2").classList.remove("active");
+        document.getElementById("step1").classList.add("active");
+        document.getElementById("stepIndicator").textContent = "Section 1: General Details";
     }
 
-    document.getElementById("feedbackForm").addEventListener("submit", function(e) {
+    document.getElementById('feedbackForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
-        const submitBtn = document.getElementById("submitBtn");
+        const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
         submitBtn.textContent = "Submitting...";
 
+        const area = document.getElementById('areaSelect').value;
+        const areaLower = area.toLowerCase();
+        const hasPT = document.getElementById('hasPT') ? document.getElementById('hasPT').value : "No";
+
         const payload = {
-            teacherName: document.getElementById("teacherNameSelect").value,
-            email: document.getElementById("email").value,
-            lessonDate: document.getElementById("lessonDate").value,
-            area: document.getElementById("areaSelect").value,
-            school: document.getElementById("schoolSelect").value,
-            grade: document.getElementById("grade").value,
-            classNum: document.getElementById("classNum").value,
-            groupNum: document.getElementById("groupNum").value,
-            groupName: document.getElementById("groupName").value,
-            zoomRoom: document.getElementById("zoomRoom").value,
-            studentNo: document.getElementById("studentNo").value,
-            studentName: document.getElementById("studentName").value,
-            lessonUnit: document.getElementById("lessonUnit").value,
-            numStudents: document.getElementById("numStudents").value,
-            hasPT: document.getElementById("hasPT").value,
-            chikuseiPT1: document.getElementById("chikuseiPT1").value,
-            chikuseiPT2: document.getElementById("chikuseiPT2").value,
-            kanzakiListening: document.getElementById("kanzakiListening").value,
-            kanzakiSpeaking: document.getElementById("kanzakiSpeaking").value,
-            kanzakiProactiveness: document.getElementById("kanzakiProactiveness").value,
-            kanzakiAttitude: document.getElementById("kanzakiAttitude").value,
-            sakaiQ1: document.getElementById("sakaiQ1").value,
-            sakaiQ2: document.getElementById("sakaiQ2").value,
-            sakaiQ3: document.getElementById("sakaiQ3").value,
-            sakaiQ4: document.getElementById("sakaiQ4").value,
-            sakaiTotalPoints: document.getElementById("sakaiTotalPoints").value,
-            stdQ1: document.getElementById("stdQ1").value,
-            stdQ2: document.getElementById("stdQ2").value,
-            messageEncouragement: document.getElementById("messageEncouragement").value,
-            interacFeedback: document.getElementById("interacFeedback").value
+            teacherName: document.getElementById('teacherNameSelect').value,
+            email: document.getElementById('email').value,
+            date: document.getElementById('date').value,
+            area: area,
+            school: document.getElementById('schoolSelect').value,
+            grade: areaLower.includes("sakai") ? "N/A" : document.getElementById('grade').value,
+            classNum: document.getElementById('classNum').value,
+            groupNum: areaLower.includes("sakai") ? "" : document.getElementById('groupNum').value,
+            zoomRoom: areaLower.includes("sakai") ? document.getElementById('zoomRoom').value : "",
+            groupName: areaLower.includes("sakai") ? document.getElementById('zoomRoom').value : document.getElementById('groupName').value,
+            numStudents: areaLower.includes("sakai") ? "1" : document.getElementById('numStudents').value,
+            studentNo: document.getElementById('studentNo') ? document.getElementById('studentNo').value : "",
+            studentName: document.getElementById('studentName') ? document.getElementById('studentName').value : "",
+            lessonUnit: document.getElementById('lessonUnit') ? document.getElementById('lessonUnit').value : "",
+            chikuseiPT1: (areaLower.includes("chikusei") && hasPT === "Yes") ? document.getElementById('chikuseiPT1').value : "",
+            chikuseiPT2: (areaLower.includes("chikusei") && hasPT === "Yes") ? document.getElementById('chikuseiPT2').value : "",
+            kanzakiListening: areaLower.includes("kanzaki") ? document.getElementById('kanzakiListening').value : "",
+            kanzakiSpeaking: areaLower.includes("kanzaki") ? document.getElementById('kanzakiSpeaking').value : "",
+            kanzakiProactiveness: areaLower.includes("kanzaki") ? document.getElementById('kanzakiProactiveness').value : "",
+            kanzakiAttitude: areaLower.includes("kanzaki") ? document.getElementById('kanzakiAttitude').value : "",
+            sakaiQ1: areaLower.includes("sakai") ? document.getElementById('sakaiQ1').value : "",
+            sakaiQ2: areaLower.includes("sakai") ? document.getElementById('sakaiQ2').value : "",
+            sakaiQ3: areaLower.includes("sakai") ? document.getElementById('sakaiQ3').value : "",
+            sakaiQ4: areaLower.includes("sakai") ? document.getElementById('sakaiQ4').value : "",
+            sakaiTotalPoints: areaLower.includes("sakai") ? document.getElementById('sakaiTotalPoints').value : "",
+            stdQ1: (!areaLower.includes("kanzaki") && !areaLower.includes("sakai")) ? document.getElementById('stdQ1').value : "",
+            stdQ2: (!areaLower.includes("kanzaki") && !areaLower.includes("sakai")) ? document.getElementById('stdQ2').value : "",
+            messageEncouragement: document.getElementById('messageEncouragement').value,
+            interacFeedback: document.getElementById('interacFeedback').value
         };
 
         fetch(SCRIPT_URL, {
-            method: "POST",
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         })
-        .then(res => res.json())
-        .then(res => {
-            if (res.result === "success") {
-                document.getElementById("formContainer").classList.add("hidden");
-                document.getElementById("successMessage").style.display = "block";
-            } else {
-                alert("Submission error: " + res.error);
-                submitBtn.disabled = false;
-                submitBtn.textContent = "Submit Feedback";
-            }
+        .then(() => {
+            document.getElementById('formContainer').classList.add('hidden');
+            document.getElementById('successMessage').style.display = 'block';
         })
         .catch(err => {
-            console.error(err);
-            alert("Error submitting form. Please try again.");
+            console.error('Submission error:', err);
+            alert('Failed to submit form. Please try again.');
             submitBtn.disabled = false;
             submitBtn.textContent = "Submit Feedback";
         });
