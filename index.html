@@ -29,6 +29,7 @@
         input, select, textarea { width: 100%; padding: 11px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.92rem; outline: none; background-color: #fff; }
         input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.15); }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
         .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
         
         .step { display: none; }
@@ -101,7 +102,8 @@
                     </select>
                 </div>
 
-                <div class="grid-2">
+                <!-- 3 Columns for Grade, Class, and Group No. -->
+                <div class="grid-3">
                     <div class="form-group">
                         <label>Grade *</label>
                         <select id="grade" required onchange="onSchoolOrGradeChange()">
@@ -136,6 +138,12 @@
                             <option value="Class B">Class B</option>
                             <option value="Class C">Class C</option>
                             <option value="Class D">Class D</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Group No.</label>
+                        <select id="groupNum" onchange="onSchoolOrGradeChange()">
+                            <option value="" selected>-- None --</option>
                         </select>
                     </div>
                 </div>
@@ -290,7 +298,7 @@
                         </div>
                     </div>
 
-                    <!-- 4. Standard Questions (Ureshino, Tottori, Chikusei, etc.) -->
+                    <!-- 4. Standard Questions -->
                     <div id="standardQuestions" class="hidden">
                         <div class="form-group">
                             <label>Ability of student(s) to converse in accordance with the lesson theme *</label>
@@ -362,12 +370,23 @@
             })
             .catch(err => console.error("Error loading data:", err));
 
+        // Populate Number of Students (0 to 50)
         const numStudents = document.getElementById("numStudents");
         for (let i = 0; i <= 50; i++) {
             const opt = document.createElement("option");
             opt.value = i;
             opt.textContent = i;
             numStudents.appendChild(opt);
+        }
+
+        // Populate Group Numbers (01 to 30)
+        const groupNum = document.getElementById("groupNum");
+        for (let i = 1; i <= 30; i++) {
+            const val = i < 10 ? `0${i}` : `${i}`;
+            const opt = document.createElement("option");
+            opt.value = val;
+            opt.textContent = val;
+            groupNum.appendChild(opt);
         }
 
         document.querySelectorAll('.sakai-calc').forEach(select => {
@@ -431,7 +450,6 @@
     function updateQuestionnaireVisibility(selectedArea) {
         if (!selectedArea) return;
 
-        // Hide all custom question blocks by default
         document.getElementById("chikuseiQuestions").classList.add("hidden");
         document.getElementById("kanzakiQuestions").classList.add("hidden");
         document.getElementById("sakaiQuestions").classList.add("hidden");
@@ -439,7 +457,6 @@
         document.getElementById("sakaiFields").classList.add("hidden");
         document.getElementById("interacNotesGroup").classList.remove("hidden");
 
-        // Clear required statuses
         setRequired("kanzakiListening", false);
         setRequired("kanzakiSpeaking", false);
         setRequired("kanzakiProactiveness", false);
@@ -454,12 +471,9 @@
 
         const groupLabel = document.getElementById("groupLabel");
         const msgLabel = document.getElementById("msgLabel");
-
-        // Flexible matching using case-insensitive check
         const areaLower = selectedArea.toLowerCase();
 
         if (areaLower.includes("kanzaki")) {
-            // KANZAKI: Show Kanzaki Questionnaire ONLY (No Ureshino/Tottori standard questions)
             document.getElementById("kanzakiQuestions").classList.remove("hidden");
             setRequired("kanzakiListening", true);
             setRequired("kanzakiSpeaking", true);
@@ -469,7 +483,6 @@
             msgLabel.textContent = "Please write a message of encouragement or feedback for your student(s). *If your student did not show up, please leave them a positive comment about English.";
         } 
         else if (areaLower.includes("chikusei")) {
-            // CHIKUSEI: Show PT Option Dropdown + Ureshino/Tottori Standard Questions
             document.getElementById("chikuseiQuestions").classList.remove("hidden");
             document.getElementById("standardQuestions").classList.remove("hidden");
             setRequired("stdQ1", true);
@@ -479,7 +492,6 @@
             toggleChikuseiPT();
         } 
         else if (areaLower.includes("sakai")) {
-            // SAKAI: Sakai Questions
             document.getElementById("sakaiQuestions").classList.remove("hidden");
             document.getElementById("sakaiFields").classList.remove("hidden");
             setRequired("studentNo", true);
@@ -490,7 +502,6 @@
             calculateSakaiTotal();
         } 
         else {
-            // STANDARD / URESHINO / TOTTORI
             document.getElementById("standardQuestions").classList.remove("hidden");
             setRequired("stdQ1", true);
             setRequired("stdQ2", true);
@@ -530,28 +541,43 @@
         const school = document.getElementById("schoolSelect").value;
         const grade = document.getElementById("grade").value;
         const classNum = document.getElementById("classNum").value;
+        const groupNum = document.getElementById("groupNum").value;
         const groupSelect = document.getElementById("groupName");
 
         groupSelect.innerHTML = '<option value="" disabled selected>-- Select --</option>';
 
         if (!school) return;
 
+        // Search for exact match in Google Sheet dataset first
         const matchedGroup = sheetData.groups.find(g => 
             g.area === area && g.school === school && (g.grade === "All" || g.grade === grade) && (g.classNum === "All" || g.classNum === classNum)
         );
 
         if (matchedGroup) {
+            let groupVal = matchedGroup.groupName;
+            
+            // Append group number suffix if selected and not already included in groupName
+            if (groupNum && !groupVal.includes(`_${groupNum}`)) {
+                const parts = groupVal.split("@");
+                groupVal = `${parts[0]}_${groupNum}@${parts[1]}`;
+            }
+
             const opt = document.createElement("option");
-            opt.value = matchedGroup.groupName;
-            opt.textContent = matchedGroup.groupName;
+            opt.value = groupVal;
+            opt.textContent = groupVal;
             groupSelect.appendChild(opt);
-            groupSelect.value = matchedGroup.groupName;
+            groupSelect.value = groupVal;
         } else if (grade && classNum) {
+            // Auto-generate format: [School]_[Grade]-[Class]_[GroupNum]@lit.co.jp
             const cleanSchool = school.replace(/\s+/g, '');
             const gradeDigit = grade.replace(/[^0-9]/g, '');
             const classClean = classNum.replace("Class ", "");
 
-            const generated = `${cleanSchool}_${gradeDigit}-${classClean}@lit.co.jp`;
+            let generated = `${cleanSchool}_${gradeDigit}-${classClean}`;
+            if (groupNum) {
+                generated += `_${groupNum}`;
+            }
+            generated += `@lit.co.jp`;
 
             const opt = document.createElement("option");
             opt.value = generated;
@@ -604,6 +630,7 @@
             school: document.getElementById('schoolSelect').value,
             grade: document.getElementById('grade').value,
             classNum: document.getElementById('classNum').value,
+            groupNum: document.getElementById('groupNum').value,
             groupName: document.getElementById('groupName').value,
             numStudents: document.getElementById('numStudents').value,
             studentNo: document.getElementById('studentNo') ? document.getElementById('studentNo').value : "",
