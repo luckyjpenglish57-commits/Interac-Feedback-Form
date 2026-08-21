@@ -1,701 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>J-P Network English - Lesson Feedback Portal</title>
-    <style>
-        :root {
-            --primary: #800020;
-            --primary-hover: #5b0017;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text: #1e293b;
-            --border: #cbd5e1;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson Form</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .container { width: 100%; max-width: 680px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 10px 25px rgba(128,0,32,0.12); border: 1px solid var(--border); overflow: hidden; }
-        
-        .header { background: #ffffff; padding: 24px 20px; text-align: center; border-bottom: 3px solid var(--primary); }
-        .header img { max-width: 180px; height: auto; margin-bottom: 12px; }
-        .header h1 { font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
-        .header p { font-size: 0.9rem; color: #64748b; font-weight: 500; }
-        
-        .form-body { padding: 28px 24px; }
-        .form-group { margin-bottom: 18px; }
-        label { display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 6px; color: #334155; }
-        input, select, textarea { width: 100%; padding: 11px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.92rem; outline: none; background-color: #fff; }
-        input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.15); }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-        .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
-        
-        .step { display: none; }
-        .step.active { display: block; }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      width: 320px;
+    }
 
-        .btn-group { display: flex; gap: 10px; margin-top: 24px; }
-        .btn { flex: 1; padding: 13px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.98rem; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-hover); }
-        .btn-secondary { background: #e2e8f0; color: var(--text); }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        
-        .success-message { display: none; text-align: center; padding: 40px 20px; }
-        .success-message h2 { color: var(--primary); margin-bottom: 8px; }
-        
-        .hidden { display: none !important; }
-        .badge { display: inline-block; padding: 4px 8px; font-size: 0.75rem; font-weight: 700; background: #e0f2fe; color: #0369a1; border-radius: 4px; margin-bottom: 10px; }
-    </style>
+    label {
+      font-size: 14px;
+      font-weight: bold;
+      color: #1a2b4c;
+      margin-bottom: 6px;
+    }
+
+    label .required {
+      color: #d9534f;
+    }
+
+    label .note {
+      font-weight: normal;
+      color: #666;
+      font-size: 0.85em;
+      margin-left: 4px;
+    }
+
+    .date-input {
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 1.5px solid #a85260;
+      border-radius: 8px;
+      outline: none;
+      background-color: #fff;
+      transition: border-color 0.2s ease-in-out;
+    }
+
+    .date-input:focus {
+      border-color: #800020;
+      box-shadow: 0 0 4px rgba(128, 0, 32, 0.2);
+    }
+  </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <img src="https://raw.githubusercontent.com/luckyjpenglish57-commits/Interac-Feedback-Form/main/logo.png" alt="J-P Network English Logo" onerror="this.style.display='none'">
-        <h1>Interac Lesson Feedback Portal</h1>
-        <p id="stepIndicator">Please submit the correct details and submit on time. Lesson Feedback submission deadline: 8:00 PM PHT.</p>
-    </div>
+  <div class="form-group">
+    <label for="lessonDate">
+      Date <span class="required">*</span> <span class="note">(Lesson Date)</span>
+    </label>
+    <input 
+      type="text" 
+      id="lessonDate" 
+      name="lessonDate" 
+      class="date-input" 
+      placeholder="YYYY-MM-DD" 
+      maxlength="10"
+      required
+    >
+  </div>
 
-    <div class="form-body" id="formContainer">
-        <form id="feedbackForm">
-            
-            <!-- SECTION 1: General Info -->
-            <div class="step active" id="step1">
-                <div class="form-group">
-                    <label>Teacher Name *</label>
-                    <select id="teacherNameSelect" required onchange="autoFillEmail()">
-                        <option value="" disabled selected>Loading teachers list from Sheet...</option>
-                    </select>
-                </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const dateInput = document.getElementById('lessonDate');
 
-                <div class="form-group">
-                    <label>Email Address *</label>
-                    <input type="email" id="email" required placeholder="Auto-filled based on selected teacher" readonly style="background-color: #f1f5f9;">
-                </div>
+      // 1. Automatic: Kuhanin ang petsa ngayon at ilagay sa input field
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      
+      // Format: YYYY-MM-DD
+      dateInput.value = `${year}-${month}-${day}`;
 
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label>Lesson Date *</label>
-                        <input type="Lesson Date" id="lessonDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Area (BOE) *</label>
-                        <select id="areaSelect" required onchange="onAreaChange()">
-                            <option value="" disabled selected>Loading areas from Sheet...</option>
-                        </select>
-                    </div>
-                </div>
+      // 2. Automatic Format sa pagta-type (YYYY-MM-DD)
+      dateInput.addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '');
 
-                <div class="btn-group">
-                    <button type="button" class="btn btn-primary" onclick="nextStep()">Next Section ➔</button>
-                </div>
-            </div>
-
-            <!-- SECTION 2: School & Lesson Details -->
-            <div class="step" id="step2">
-                <div class="form-group">
-                    <label>School *</label>
-                    <select id="schoolSelect" required onchange="onSchoolOrGradeChange()">
-                        <option value="" disabled selected>-- Select Area first --</option>
-                    </select>
-                </div>
-
-                <!-- Dynamic Grid for Grade, Class, Group/Zoom -->
-                <div class="grid-3" id="classGrid">
-                    <div class="form-group" id="gradeGroup">
-                        <label>Grade *</label>
-                        <select id="grade" required onchange="onSchoolOrGradeChange()">
-                            <option value="" disabled selected>-- Grade --</option>
-                            <option value="1st Grade">1st Grade</option>
-                            <option value="2nd Grade">2nd Grade</option>
-                            <option value="3rd Grade">3rd Grade</option>
-                            <option value="4th Grade">4th Grade</option>
-                            <option value="5th Grade">5th Grade</option>
-                            <option value="6th Grade">6th Grade</option>
-                            <option value="7th Grade">7th Grade</option>
-                            <option value="8th Grade">8th Grade</option>
-                            <option value="9th Grade">9th Grade</option>
-                            <option value="10th Grade">10th Grade</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Class *</label>
-                        <select id="classNum" required onchange="onSchoolOrGradeChange()">
-                            <option value="" disabled selected>-- Class --</option>
-                            <option value="Class 1">Class 1</option>
-                            <option value="Class 2">Class 2</option>
-                            <option value="Class 3">Class 3</option>
-                            <option value="Class 4">Class 4</option>
-                            <option value="Class 5">Class 5</option>
-                            <option value="Class 6">Class 6</option>
-                            <option value="Class 7">Class 7</option>
-                            <option value="Class 8">Class 8</option>
-                            <option value="Class 9" class="non-sakai">Class 9</option>
-                            <option value="Class 10" class="non-sakai">Class 10</option>
-                        </select>
-                    </div>
-                    <div class="form-group" id="groupNumWrapper">
-                        <label>Group No.</label>
-                        <select id="groupNum" onchange="onSchoolOrGradeChange()">
-                            <option value="" selected>-- None --</option>
-                        </select>
-                    </div>
-                    <div class="form-group hidden" id="zoomRoomWrapper">
-                        <label>Zoom Room Number *</label>
-                        <select id="zoomRoom">
-                            <option value="" disabled selected>-- Room --</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group" id="groupNameWrapper">
-                    <label id="groupLabel">Group Name / Meeting Group Email *</label>
-                    <select id="groupName" required>
-                        <option value="" disabled selected>-- Select School, Grade & Class first --</option>
-                    </select>
-                </div>
-
-                <!-- Sakai Specific Inputs -->
-                <div id="sakaiFields" class="hidden">
-                    <span class="badge">Sakai City Fields</span>
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label>Students' Attendance Number *</label>
-                            <input type="text" id="studentNo" placeholder="e.g. 2-4 15">
-                        </div>
-                        <div class="form-group">
-                            <label>Student's Name *</label>
-                            <input type="text" id="studentName" placeholder="e.g. Taro Yamada">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Lesson Unit *</label>
-                        <input type="text" id="lessonUnit" placeholder="e.g. Unit 1">
-                    </div>
-                </div>
-
-                <div class="form-group" id="numStudentsWrapper">
-                    <label>Number of Students *</label>
-                    <select id="numStudents" required>
-                        <option value="" disabled selected>-- Select --</option>
-                    </select>
-                </div>
-
-                <!-- QUESTIONNAIRES SECTION -->
-                <div id="questionnaireContainer">
-                    
-                    <!-- 1. Chikusei Performance Test Dropdown -->
-                    <div id="chikuseiQuestions" class="hidden">
-                        <span class="badge">Chikusei Performance Test Option</span>
-                        <div class="form-group">
-                            <label>Did you conduct a Performance Test in this lesson?</label>
-                            <select id="hasPT" onchange="toggleChikuseiPT()">
-                                <option value="No" selected>No (Proceed with Standard Questions)</option>
-                                <option value="Yes">Yes (Conducting Performance Test)</option>
-                            </select>
-                        </div>
-
-                        <div id="ptDetails" class="hidden">
-                            <div class="form-group">
-                                <label>【Use only when conducting performance tests.】Thinking, Judgment, and Expression *</label>
-                                <select id="chikuseiPT1">
-                                    <option value="" disabled selected>-- Select --</option>
-                                    <option value='5 points "A" Adequete'>5 points "A" Adequete</option>
-                                    <option value='3 points "B" Generally adequate'>3 points "B" Generally adequate</option>
-                                    <option value='1 points "C" Not reaching B'>1 points "C" Not reaching B</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>【Use only when conducting performance tests.】Attitude of actively engaging in learning *</label>
-                                <select id="chikuseiPT2">
-                                    <option value="" disabled selected>-- Select --</option>
-                                    <option value='3 points "A" Adequate attitude observed'>3 points "A" Adequate attitude observed</option>
-                                    <option value='2 points "B" Generally observed'>2 points "B" Generally observed</option>
-                                    <option value='1 point "C" Not reaching B'>1 point "C" Not reaching B</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 2. Kanzaki City Questions -->
-                    <div id="kanzakiQuestions" class="hidden">
-                        <span class="badge">Kanzaki City Evaluation</span>
-                        <div class="form-group">
-                            <label>Listening skills *</label>
-                            <select id="kanzakiListening">
-                                <option value="" disabled selected>-- Select --</option>
-                                <option value="3 - excellent">3 - excellent</option>
-                                <option value="2 - Good">2 - Good</option>
-                                <option value="1 - Poor">1 - Poor</option>
-                                <option value="0 - The student did not show up">0 - The student did not show up</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Speaking skills *</label>
-                            <select id="kanzakiSpeaking">
-                                <option value="" disabled selected>-- Select --</option>
-                                <option value="3 - excellent">3 - excellent</option>
-                                <option value="2 - Good">2 - Good</option>
-                                <option value="1 - Poor">1 - Poor</option>
-                                <option value="0 - The student did not show up">0 - The student did not show up</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Proactiveness *</label>
-                            <select id="kanzakiProactiveness">
-                                <option value="" disabled selected>-- Select --</option>
-                                <option value="3 - excellent">3 - excellent</option>
-                                <option value="2 - Good">2 - Good</option>
-                                <option value="1 - Poor">1 - Poor</option>
-                                <option value="0 - The student did not show up">0 - The student did not show up</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Attitude *</label>
-                            <select id="kanzakiAttitude">
-                                <option value="" disabled selected>-- Select --</option>
-                                <option value="3 - excellent">3 - excellent</option>
-                                <option value="2 - Good">2 - Good</option>
-                                <option value="1 - Poor">1 - Poor</option>
-                                <option value="0 - The student did not show up">0 - The student did not show up</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- 3. Sakai City Questions (Q1 - Q4 Thumbs Up) -->
-                    <div id="sakaiQuestions" class="hidden">
-                        <span class="badge">Evaluation (Enter the student's self-reflection score)</span>
-                        <div class="grid-4">
-                            <div class="form-group">
-                                <label>Q1 *</label>
-                                <select id="sakaiQ1" class="sakai-calc">
-                                    <option value="1">1 👍</option>
-                                    <option value="2">2 👍👍</option>
-                                    <option value="3">3 👍👍👍</option>
-                                    <option value="4">4 👍👍👍👍</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Q2 *</label>
-                                <select id="sakaiQ2" class="sakai-calc">
-                                    <option value="1">1 👍</option>
-                                    <option value="2">2 👍👍</option>
-                                    <option value="3">3 👍👍👍</option>
-                                    <option value="4">4 👍👍👍👍</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Q3 *</label>
-                                <select id="sakaiQ3" class="sakai-calc">
-                                    <option value="1">1 👍</option>
-                                    <option value="2">2 👍👍</option>
-                                    <option value="3">3 👍👍👍</option>
-                                    <option value="4">4 👍👍👍👍</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Q4 *</label>
-                                <select id="sakaiQ4" class="sakai-calc">
-                                    <option value="1">1 👍</option>
-                                    <option value="2">2 👍👍</option>
-                                    <option value="3">3 👍👍👍</option>
-                                    <option value="4">4 👍👍👍👍</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Total Points</label>
-                            <input type="text" id="sakaiTotalPoints" readonly style="background-color: #f1f5f9; font-weight: bold;">
-                        </div>
-                    </div>
-
-                    <!-- 4. Standard Questions -->
-                    <div id="standardQuestions" class="hidden">
-                        <div class="form-group">
-                            <label>Ability of student(s) to converse in accordance with the lesson theme *</label>
-                            <select id="stdQ1">
-                                <option value="" disabled selected>-- Select --</option>
-                                <option value="5 - Excellent (had a smooth conversation on the theme of the lesson with dialogue in both directions)">5 - Excellent</option>
-                                <option value="4 - Great (had a smooth conversation on the theme of the lesson and was able to answer questions actively)">4 - Great</option>
-                                <option value="3 - Good (had a smooth conversation on the theme of the lesson)">3 - Good</option>
-                                <option value="2 - Fair (was able to engage in some conversation, but off-topic)">2 - Fair</option>
-                                <option value="1 - Need more effort (conversation didn't go well)">1 - Need more effort</option>
-                                <option value="0 - Student did not show up">0 - Student did not show up</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Level of student interest in engaging in conversation *</label>
-                            <select id="stdQ2">
-                                <option value="" disabled selected>-- Select --</option>
-                                <option value="5 - Excellent (actively expressed his/her own opinions and impressions)">5 - Excellent</option>
-                                <option value="4 - Great (listened carefully to instructor and tried to understand by asking questions)">4 - Great</option>
-                                <option value="3 - Good (listened to the instructor seriously and tried to understand)">3 - Good</option>
-                                <option value="2 - Fair (seemed hesitant to interact in English)">2 - Fair</option>
-                                <option value="1 - Need more effort (hardly made eye contact/effort)">1 - Need more effort</option>
-                                <option value="0 - Student did not show up">0 - Student did not show up</option>
-                            </select>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="form-group" style="margin-top: 15px;">
-                    <label id="msgLabel">Please write a message of encouragement or feedback for your student(s).</label>
-                    <textarea id="messageEncouragement" rows="3" placeholder="Your feedback comment..."></textarea>
-                </div>
-
-                <div class="form-group" id="interacNotesGroup">
-                    <label id="interacLabel">Any comments or feedback for Interac about this lesson.</label>
-                    <textarea id="interacFeedback" rows="2" placeholder="Your comments/notes..."></textarea>
-                </div>
-
-                <div class="btn-group">
-                    <button type="button" class="btn btn-secondary" onclick="prevStep()">← Back</button>
-                    <button type="submit" id="submitBtn" class="btn btn-primary">Submit Feedback</button>
-                </div>
-            </div>
-
-        </form>
-    </div>
-
-    <div class="success-message" id="successMessage">
-        <h2>✓ Thank You!</h2>
-        <p>Your lesson feedback has been successfully submitted.</p>
-        <br>
-        <button class="btn btn-secondary" onclick="location.reload()">Submit Another Response</button>
-    </div>
-</div>
-
-<script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwuVyMt3ev6Tr_3gwnQsWzjzruSiaEUyeXkumhbM31Gs4zWmV9EzylG8NnDErtbq8Y/exec";
-
-    let sheetData = { teachers: [], schools: [], groups: [] };
-    let currentStep = 1;
-
-    window.addEventListener('DOMContentLoaded', () => {
-        fetch(SCRIPT_URL)
-            .then(res => res.json())
-            .then(data => {
-                sheetData = data;
-                populateTeachers();
-                populateAreas();
-            })
-            .catch(err => console.error("Error loading data:", err));
-
-        // Populate Number of Students (0 to 50)
-        const numStudents = document.getElementById("numStudents");
-        for (let i = 0; i <= 50; i++) {
-            const opt = document.createElement("option");
-            opt.value = i;
-            opt.textContent = i;
-            numStudents.appendChild(opt);
+        if (value.length > 4 && value.length <= 6) {
+          value = value.slice(0, 4) + '-' + value.slice(4);
+        } else if (value.length > 6) {
+          value = value.slice(0, 4) + '-' + value.slice(4, 6) + '-' + value.slice(6, 8);
         }
 
-        // Populate Group Numbers (01 to 30)
-        const groupNum = document.getElementById("groupNum");
-        for (let i = 1; i <= 30; i++) {
-            const val = i < 10 ? `0${i}` : `${i}`;
-            const opt = document.createElement("option");
-            opt.value = val;
-            opt.textContent = val;
-            groupNum.appendChild(opt);
-        }
-
-        // Populate Zoom Room Numbers (Room 1 to Room 40)
-        const zoomRoom = document.getElementById("zoomRoom");
-        for (let i = 1; i <= 40; i++) {
-            const opt = document.createElement("option");
-            opt.value = `Room ${i}`;
-            opt.textContent = `Room ${i}`;
-            zoomRoom.appendChild(opt);
-        }
-
-        document.querySelectorAll('.sakai-calc').forEach(select => {
-            select.addEventListener('change', calculateSakaiTotal);
-        });
+        e.target.value = value;
+      });
     });
+  </script>
 
-    function calculateSakaiTotal() {
-        const q1 = parseInt(document.getElementById('sakaiQ1').value) || 0;
-        const q2 = parseInt(document.getElementById('sakaiQ2').value) || 0;
-        const q3 = parseInt(document.getElementById('sakaiQ3').value) || 0;
-        const q4 = parseInt(document.getElementById('sakaiQ4').value) || 0;
-        document.getElementById('sakaiTotalPoints').value = (q1 + q2 + q3 + q4) + " Points";
-    }
-
-    function populateTeachers() {
-        const teacherSelect = document.getElementById("teacherNameSelect");
-        teacherSelect.innerHTML = '<option value="" disabled selected>-- Select Teacher Name --</option>';
-        sheetData.teachers.forEach(t => {
-            const opt = document.createElement("option");
-            opt.value = t.name;
-            opt.textContent = t.name;
-            teacherSelect.appendChild(opt);
-        });
-    }
-
-    function autoFillEmail() {
-        const selectedTeacher = document.getElementById("teacherNameSelect").value;
-        const teacherObj = sheetData.teachers.find(t => t.name === selectedTeacher);
-        if (teacherObj) {
-            document.getElementById("email").value = teacherObj.email;
-        }
-    }
-
-    function populateAreas() {
-        const areaSelect = document.getElementById("areaSelect");
-        areaSelect.innerHTML = '<option value="" disabled selected>-- Select Area (BOE) --</option>';
-        const uniqueAreas = [...new Set(sheetData.schools.map(s => s.area))];
-        uniqueAreas.forEach(area => {
-            const opt = document.createElement("option");
-            opt.value = area;
-            opt.textContent = area;
-            areaSelect.appendChild(opt);
-        });
-    }
-
-    function setRequired(id, isReq) {
-        const el = document.getElementById(id);
-        if (el) el.required = isReq;
-    }
-
-    function toggleChikuseiPT() {
-        const hasPT = document.getElementById("hasPT").value;
-        const ptDetails = document.getElementById("ptDetails");
-        if (hasPT === "Yes") {
-            ptDetails.classList.remove("hidden");
-            setRequired("chikuseiPT1", true);
-            setRequired("chikuseiPT2", true);
-        } else {
-            ptDetails.classList.add("hidden");
-            setRequired("chikuseiPT1", false);
-            setRequired("chikuseiPT2", false);
-        }
-    }
-
-    function updateQuestionnaireVisibility(selectedArea) {
-        if (!selectedArea) return;
-
-        document.getElementById("chikuseiQuestions").classList.add("hidden");
-        document.getElementById("kanzakiQuestions").classList.add("hidden");
-        document.getElementById("sakaiQuestions").classList.add("hidden");
-        document.getElementById("standardQuestions").classList.add("hidden");
-        document.getElementById("sakaiFields").classList.add("hidden");
-        document.getElementById("interacNotesGroup").classList.remove("hidden");
-
-        setRequired("kanzakiListening", false);
-        setRequired("kanzakiSpeaking", false);
-        setRequired("kanzakiProactiveness", false);
-        setRequired("kanzakiAttitude", false);
-        setRequired("stdQ1", false);
-        setRequired("stdQ2", false);
-        setRequired("studentNo", false);
-        setRequired("studentName", false);
-        setRequired("lessonUnit", false);
-        setRequired("chikuseiPT1", false);
-        setRequired("chikuseiPT2", false);
-        setRequired("zoomRoom", false);
-
-        const groupLabel = document.getElementById("groupLabel");
-        const msgLabel = document.getElementById("msgLabel");
-        const interacLabel = document.getElementById("interacLabel");
-        const areaLower = selectedArea.toLowerCase();
-
-        if (areaLower.includes("sakai")) {
-            document.getElementById("gradeGroup").classList.add("hidden");
-            document.getElementById("groupNumWrapper").classList.add("hidden");
-            document.getElementById("groupNameWrapper").classList.add("hidden");
-            document.getElementById("numStudentsWrapper").classList.add("hidden");
-            document.getElementById("zoomRoomWrapper").classList.remove("hidden");
-            
-            document.getElementById("sakaiQuestions").classList.remove("hidden");
-            document.getElementById("sakaiFields").classList.remove("hidden");
-
-            setRequired("grade", false);
-            setRequired("groupName", false);
-            setRequired("numStudents", false);
-            setRequired("zoomRoom", true);
-            setRequired("studentNo", true);
-            setRequired("studentName", true);
-            setRequired("lessonUnit", true);
-
-            msgLabel.textContent = "Please share the feedback you gave to the students.";
-            interacLabel.textContent = "Thank you for your cooperation. If you have anything to share, please feel free to add your notes here.";
-            calculateSakaiTotal();
-        } else {
-            document.getElementById("gradeGroup").classList.remove("hidden");
-            document.getElementById("groupNumWrapper").classList.remove("hidden");
-            document.getElementById("groupNameWrapper").classList.remove("hidden");
-            document.getElementById("numStudentsWrapper").classList.remove("hidden");
-            document.getElementById("zoomRoomWrapper").classList.add("hidden");
-
-            setRequired("grade", true);
-            setRequired("groupName", true);
-            setRequired("numStudents", true);
-
-            interacLabel.textContent = "Any comments or feedback for Interac about this lesson.";
-
-            if (areaLower.includes("kanzaki")) {
-                document.getElementById("kanzakiQuestions").classList.remove("hidden");
-                setRequired("kanzakiListening", true);
-                setRequired("kanzakiSpeaking", true);
-                setRequired("kanzakiProactiveness", true);
-                setRequired("kanzakiAttitude", true);
-                groupLabel.textContent = "Group Email (Same for all grades/classes) *";
-                msgLabel.textContent = "Please write a message of encouragement or feedback for your student(s). *If your student did not show up, please leave them a positive comment about English.";
-            } 
-            else if (areaLower.includes("chikusei")) {
-                document.getElementById("chikuseiQuestions").classList.remove("hidden");
-                document.getElementById("standardQuestions").classList.remove("hidden");
-                setRequired("stdQ1", true);
-                setRequired("stdQ2", true);
-                groupLabel.textContent = "Group Name / Meeting Group Email *";
-                msgLabel.textContent = "Please write a message of encouragement or feedback for your student(s). *If your student did not show up, please leave them a positive comment about English.";
-                toggleChikuseiPT();
-            } 
-            else {
-                document.getElementById("standardQuestions").classList.remove("hidden");
-                setRequired("stdQ1", true);
-                setRequired("stdQ2", true);
-                groupLabel.textContent = "Group Name / Meeting Group Email *";
-                msgLabel.textContent = "Please write a message of encouragement or feedback for your student(s). *If your student did not show up, please leave them a positive comment about English.";
-
-                if (areaLower.includes("nishigo")) {
-                    document.getElementById("interacNotesGroup").classList.add("hidden");
-                }
-            }
-        }
-    }
-
-    function onAreaChange() {
-        const selectedArea = document.getElementById("areaSelect").value;
-        const schoolDropdown = document.getElementById("schoolSelect");
-
-        schoolDropdown.innerHTML = '<option value="" disabled selected>-- Select School --</option>';
-        const filteredSchools = sheetData.schools.filter(s => s.area === selectedArea);
-        filteredSchools.forEach(s => {
-            const opt = document.createElement("option");
-            opt.value = s.school;
-            opt.textContent = s.school;
-            schoolDropdown.appendChild(opt);
-        });
-
-        updateQuestionnaireVisibility(selectedArea);
-        onSchoolOrGradeChange();
-    }
-
-    function onSchoolOrGradeChange() {
-        const selectedArea = document.getElementById("areaSelect").value;
-        const selectedSchool = document.getElementById("schoolSelect").value;
-        const selectedGrade = document.getElementById("grade").value;
-        const selectedClass = document.getElementById("classNum").value;
-        const selectedGroupNum = document.getElementById("groupNum").value;
-
-        const groupDropdown = document.getElementById("groupName");
-        groupDropdown.innerHTML = '<option value="" disabled selected>-- Select Group --</option>';
-
-        if (!selectedArea || !selectedSchool) return;
-
-        let filteredGroups = sheetData.groups.filter(g => g.area === selectedArea && g.school === selectedSchool);
-
-        if (selectedGrade) {
-            filteredGroups = filteredGroups.filter(g => g.grade === selectedGrade);
-        }
-        if (selectedClass) {
-            filteredGroups = filteredGroups.filter(g => g.classNum === selectedClass);
-        }
-
-        filteredGroups.forEach(g => {
-            const opt = document.createElement("option");
-            opt.value = g.groupName;
-            opt.textContent = g.groupName;
-            groupDropdown.appendChild(opt);
-        });
-    }
-
-    function nextStep() {
-        const currentInputs = document.getElementById(`step${currentStep}`).querySelectorAll("input, select, textarea");
-        for (let input of currentInputs) {
-            if (!input.checkValidity()) {
-                input.reportValidity();
-                return;
-            }
-        }
-        document.getElementById(`step${currentStep}`).classList.remove("active");
-        currentStep++;
-        document.getElementById(`step${currentStep}`).classList.add("active");
-    }
-
-    function prevStep() {
-        document.getElementById(`step${currentStep}`).classList.remove("active");
-        currentStep--;
-        document.getElementById(`step${currentStep}`).classList.add("active");
-    }
-
-    document.getElementById("feedbackForm").addEventListener("submit", function(e) {
-        e.preventDefault();
-
-        const submitBtn = document.getElementById("submitBtn");
-        submitBtn.disabled = true;
-        submitBtn.textContent = "Submitting...";
-
-        const payload = {
-            teacherName: document.getElementById("teacherNameSelect").value,
-            email: document.getElementById("email").value,
-            lessonDate: document.getElementById("lessonDate").value,
-            area: document.getElementById("areaSelect").value,
-            school: document.getElementById("schoolSelect").value,
-            grade: document.getElementById("grade").value,
-            classNum: document.getElementById("classNum").value,
-            groupNum: document.getElementById("groupNum").value,
-            groupName: document.getElementById("groupName").value,
-            zoomRoom: document.getElementById("zoomRoom").value,
-            studentNo: document.getElementById("studentNo").value,
-            studentName: document.getElementById("studentName").value,
-            lessonUnit: document.getElementById("lessonUnit").value,
-            numStudents: document.getElementById("numStudents").value,
-            hasPT: document.getElementById("hasPT").value,
-            chikuseiPT1: document.getElementById("chikuseiPT1").value,
-            chikuseiPT2: document.getElementById("chikuseiPT2").value,
-            kanzakiListening: document.getElementById("kanzakiListening").value,
-            kanzakiSpeaking: document.getElementById("kanzakiSpeaking").value,
-            kanzakiProactiveness: document.getElementById("kanzakiProactiveness").value,
-            kanzakiAttitude: document.getElementById("kanzakiAttitude").value,
-            sakaiQ1: document.getElementById("sakaiQ1").value,
-            sakaiQ2: document.getElementById("sakaiQ2").value,
-            sakaiQ3: document.getElementById("sakaiQ3").value,
-            sakaiQ4: document.getElementById("sakaiQ4").value,
-            sakaiTotalPoints: document.getElementById("sakaiTotalPoints").value,
-            stdQ1: document.getElementById("stdQ1").value,
-            stdQ2: document.getElementById("stdQ2").value,
-            messageEncouragement: document.getElementById("messageEncouragement").value,
-            interacFeedback: document.getElementById("interacFeedback").value
-        };
-
-        fetch(SCRIPT_URL, {
-            method: "POST",
-            body: JSON.stringify(payload)
-        })
-        .then(res => res.json())
-        .then(res => {
-            if (res.result === "success") {
-                document.getElementById("formContainer").classList.add("hidden");
-                document.getElementById("successMessage").style.display = "block";
-            } else {
-                alert("Submission error: " + res.error);
-                submitBtn.disabled = false;
-                submitBtn.textContent = "Submit Feedback";
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Error submitting form. Please try again.");
-            submitBtn.disabled = false;
-            submitBtn.textContent = "Submit Feedback";
-        });
-    });
-</script>
 </body>
 </html>
