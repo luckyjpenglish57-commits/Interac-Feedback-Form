@@ -176,29 +176,29 @@
                 <!-- QUESTIONNAIRES SECTION -->
                 <div id="questionnaireContainer">
                     
-                    <!-- 1. Chikusei Performance Test Optional Mode -->
+                    <!-- 1. Chikusei Performance Test Dropdown -->
                     <div id="chikuseiQuestions" class="hidden">
-                        <span class="badge">Chikusei City - Performance Test Options</span>
+                        <span class="badge">Chikusei Performance Test Option</span>
                         <div class="form-group">
                             <label>Did you conduct a Performance Test in this lesson?</label>
                             <select id="hasPT" onchange="toggleChikuseiPT()">
-                                <option value="No">No (Proceed with Standard Questions)</option>
+                                <option value="No" selected>No (Proceed with Standard Questions)</option>
                                 <option value="Yes">Yes (Conducting Performance Test)</option>
                             </select>
                         </div>
 
                         <div id="ptDetails" class="hidden">
                             <div class="form-group">
-                                <label>【Performance Test】Thinking, Judgment, and Expression</label>
+                                <label>【Use only when conducting performance tests.】Thinking, Judgment, and Expression *</label>
                                 <select id="chikuseiPT1">
                                     <option value="" disabled selected>-- Select --</option>
-                                    <option value='5 points "A" Adequate'>5 points "A" Adequate</option>
+                                    <option value='5 points "A" Adequete'>5 points "A" Adequete</option>
                                     <option value='3 points "B" Generally adequate'>3 points "B" Generally adequate</option>
                                     <option value='1 points "C" Not reaching B'>1 points "C" Not reaching B</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>【Performance Test】Attitude of actively engaging in learning</label>
+                                <label>【Use only when conducting performance tests.】Attitude of actively engaging in learning *</label>
                                 <select id="chikuseiPT2">
                                     <option value="" disabled selected>-- Select --</option>
                                     <option value='3 points "A" Adequate attitude observed'>3 points "A" Adequate attitude observed</option>
@@ -216,7 +216,7 @@
                             <label>Listening skills *</label>
                             <select id="kanzakiListening">
                                 <option value="" disabled selected>-- Select --</option>
-                                <option value="3 - Excellent">3 - Excellent</option>
+                                <option value="3 - excellent">3 - excellent</option>
                                 <option value="2 - Good">2 - Good</option>
                                 <option value="1 - Poor">1 - Poor</option>
                                 <option value="0 - The student did not show up">0 - The student did not show up</option>
@@ -226,7 +226,7 @@
                             <label>Speaking skills *</label>
                             <select id="kanzakiSpeaking">
                                 <option value="" disabled selected>-- Select --</option>
-                                <option value="3 - Excellent">3 - Excellent</option>
+                                <option value="3 - excellent">3 - excellent</option>
                                 <option value="2 - Good">2 - Good</option>
                                 <option value="1 - Poor">1 - Poor</option>
                                 <option value="0 - The student did not show up">0 - The student did not show up</option>
@@ -236,7 +236,7 @@
                             <label>Proactiveness *</label>
                             <select id="kanzakiProactiveness">
                                 <option value="" disabled selected>-- Select --</option>
-                                <option value="3 - Excellent">3 - Excellent</option>
+                                <option value="3 - excellent">3 - excellent</option>
                                 <option value="2 - Good">2 - Good</option>
                                 <option value="1 - Poor">1 - Poor</option>
                                 <option value="0 - The student did not show up">0 - The student did not show up</option>
@@ -246,7 +246,7 @@
                             <label>Attitude *</label>
                             <select id="kanzakiAttitude">
                                 <option value="" disabled selected>-- Select --</option>
-                                <option value="3 - Excellent">3 - Excellent</option>
+                                <option value="3 - excellent">3 - excellent</option>
                                 <option value="2 - Good">2 - Good</option>
                                 <option value="1 - Poor">1 - Poor</option>
                                 <option value="0 - The student did not show up">0 - The student did not show up</option>
@@ -290,7 +290,7 @@
                         </div>
                     </div>
 
-                    <!-- 4. Standard Questions -->
+                    <!-- 4. Standard Questions (Ureshino, Tottori, Chikusei, etc.) -->
                     <div id="standardQuestions" class="hidden">
                         <div class="form-group">
                             <label>Ability of student(s) to converse in accordance with the lesson theme *</label>
@@ -321,8 +321,8 @@
                 </div>
 
                 <div class="form-group" style="margin-top: 15px;">
-                    <label id="msgLabel">Please write a message of encouragement or feedback for your student(s).</label>
-                    <textarea id="messageEncouragement" rows="3" placeholder="*If your student did not show up, please leave them a positive comment about English."></textarea>
+                    <label id="msgLabel">Please write a message of encouragement or feedback for your student(s). *If your student did not show up, please leave them a positive comment about English.</label>
+                    <textarea id="messageEncouragement" rows="3" placeholder="Your feedback comment..."></textarea>
                 </div>
 
                 <div class="form-group" id="interacNotesGroup">
@@ -429,7 +429,9 @@
     }
 
     function updateQuestionnaireVisibility(selectedArea) {
-        // Reset/Hide all questionnaire blocks
+        if (!selectedArea) return;
+
+        // Hide all custom question blocks by default
         document.getElementById("chikuseiQuestions").classList.add("hidden");
         document.getElementById("kanzakiQuestions").classList.add("hidden");
         document.getElementById("sakaiQuestions").classList.add("hidden");
@@ -437,7 +439,7 @@
         document.getElementById("sakaiFields").classList.add("hidden");
         document.getElementById("interacNotesGroup").classList.remove("hidden");
 
-        // Clear requirements
+        // Clear required statuses
         setRequired("kanzakiListening", false);
         setRequired("kanzakiSpeaking", false);
         setRequired("kanzakiProactiveness", false);
@@ -453,21 +455,31 @@
         const groupLabel = document.getElementById("groupLabel");
         const msgLabel = document.getElementById("msgLabel");
 
-        if (selectedArea === "Chikusei City") {
-            document.getElementById("chikuseiQuestions").classList.remove("hidden");
-            document.getElementById("standardQuestions").classList.remove("hidden");
-            setRequired("stdQ1", true);
-            setRequired("stdQ2", true);
-            groupLabel.textContent = "Group Name / Meeting Group Email *";
-            toggleChikuseiPT();
-        } else if (selectedArea === "Kanzaki City") {
+        // Flexible matching using case-insensitive check
+        const areaLower = selectedArea.toLowerCase();
+
+        if (areaLower.includes("kanzaki")) {
+            // KANZAKI: Show Kanzaki Questionnaire ONLY (No Ureshino/Tottori standard questions)
             document.getElementById("kanzakiQuestions").classList.remove("hidden");
             setRequired("kanzakiListening", true);
             setRequired("kanzakiSpeaking", true);
             setRequired("kanzakiProactiveness", true);
             setRequired("kanzakiAttitude", true);
             groupLabel.textContent = "Group Email (Same for all grades/classes) *";
-        } else if (selectedArea === "Sakai City") {
+            msgLabel.textContent = "Please write a message of encouragement or feedback for your student(s). *If your student did not show up, please leave them a positive comment about English.";
+        } 
+        else if (areaLower.includes("chikusei")) {
+            // CHIKUSEI: Show PT Option Dropdown + Ureshino/Tottori Standard Questions
+            document.getElementById("chikuseiQuestions").classList.remove("hidden");
+            document.getElementById("standardQuestions").classList.remove("hidden");
+            setRequired("stdQ1", true);
+            setRequired("stdQ2", true);
+            groupLabel.textContent = "Group Name / Meeting Group Email *";
+            msgLabel.textContent = "Please write a message of encouragement or feedback for your student(s). *If your student did not show up, please leave them a positive comment about English.";
+            toggleChikuseiPT();
+        } 
+        else if (areaLower.includes("sakai")) {
+            // SAKAI: Sakai Questions
             document.getElementById("sakaiQuestions").classList.remove("hidden");
             document.getElementById("sakaiFields").classList.remove("hidden");
             setRequired("studentNo", true);
@@ -476,15 +488,16 @@
             groupLabel.textContent = "Zoom Room Number (Same for all grades/classes) *";
             msgLabel.textContent = "Please share the feedback you gave to the students:";
             calculateSakaiTotal();
-        } else {
-            // Standard Areas
+        } 
+        else {
+            // STANDARD / URESHINO / TOTTORI
             document.getElementById("standardQuestions").classList.remove("hidden");
             setRequired("stdQ1", true);
             setRequired("stdQ2", true);
             groupLabel.textContent = "Group Name / Meeting Group Email *";
-            msgLabel.textContent = "Please write a message of encouragement or feedback for your student(s).";
+            msgLabel.textContent = "Please write a message of encouragement or feedback for your student(s). *If your student did not show up, please leave them a positive comment about English.";
 
-            if (selectedArea === "Nishigo") {
+            if (areaLower.includes("nishigo")) {
                 document.getElementById("interacNotesGroup").classList.add("hidden");
             }
         }
@@ -559,7 +572,6 @@
             return;
         }
 
-        // Explicitly refresh section visibility before changing steps
         updateQuestionnaireVisibility(area);
 
         document.getElementById("step1").classList.remove("active");
@@ -581,6 +593,7 @@
         submitBtn.textContent = "Submitting...";
 
         const area = document.getElementById('areaSelect').value;
+        const areaLower = area.toLowerCase();
         const hasPT = document.getElementById('hasPT') ? document.getElementById('hasPT').value : "No";
 
         const payload = {
@@ -596,19 +609,19 @@
             studentNo: document.getElementById('studentNo') ? document.getElementById('studentNo').value : "",
             studentName: document.getElementById('studentName') ? document.getElementById('studentName').value : "",
             lessonUnit: document.getElementById('lessonUnit') ? document.getElementById('lessonUnit').value : "",
-            chikuseiPT1: (area === "Chikusei City" && hasPT === "Yes") ? document.getElementById('chikuseiPT1').value : "",
-            chikuseiPT2: (area === "Chikusei City" && hasPT === "Yes") ? document.getElementById('chikuseiPT2').value : "",
-            kanzakiListening: area === "Kanzaki City" ? document.getElementById('kanzakiListening').value : "",
-            kanzakiSpeaking: area === "Kanzaki City" ? document.getElementById('kanzakiSpeaking').value : "",
-            kanzakiProactiveness: area === "Kanzaki City" ? document.getElementById('kanzakiProactiveness').value : "",
-            kanzakiAttitude: area === "Kanzaki City" ? document.getElementById('kanzakiAttitude').value : "",
-            sakaiQ1: area === "Sakai City" ? document.getElementById('sakaiQ1').value : "",
-            sakaiQ2: area === "Sakai City" ? document.getElementById('sakaiQ2').value : "",
-            sakaiQ3: area === "Sakai City" ? document.getElementById('sakaiQ3').value : "",
-            sakaiQ4: area === "Sakai City" ? document.getElementById('sakaiQ4').value : "",
-            sakaiTotalPoints: area === "Sakai City" ? document.getElementById('sakaiTotalPoints').value : "",
-            stdQ1: (area !== "Kanzaki City" && area !== "Sakai City") ? document.getElementById('stdQ1').value : "",
-            stdQ2: (area !== "Kanzaki City" && area !== "Sakai City") ? document.getElementById('stdQ2').value : "",
+            chikuseiPT1: (areaLower.includes("chikusei") && hasPT === "Yes") ? document.getElementById('chikuseiPT1').value : "",
+            chikuseiPT2: (areaLower.includes("chikusei") && hasPT === "Yes") ? document.getElementById('chikuseiPT2').value : "",
+            kanzakiListening: areaLower.includes("kanzaki") ? document.getElementById('kanzakiListening').value : "",
+            kanzakiSpeaking: areaLower.includes("kanzaki") ? document.getElementById('kanzakiSpeaking').value : "",
+            kanzakiProactiveness: areaLower.includes("kanzaki") ? document.getElementById('kanzakiProactiveness').value : "",
+            kanzakiAttitude: areaLower.includes("kanzaki") ? document.getElementById('kanzakiAttitude').value : "",
+            sakaiQ1: areaLower.includes("sakai") ? document.getElementById('sakaiQ1').value : "",
+            sakaiQ2: areaLower.includes("sakai") ? document.getElementById('sakaiQ2').value : "",
+            sakaiQ3: areaLower.includes("sakai") ? document.getElementById('sakaiQ3').value : "",
+            sakaiQ4: areaLower.includes("sakai") ? document.getElementById('sakaiQ4').value : "",
+            sakaiTotalPoints: areaLower.includes("sakai") ? document.getElementById('sakaiTotalPoints').value : "",
+            stdQ1: (!areaLower.includes("kanzaki") && !areaLower.includes("sakai")) ? document.getElementById('stdQ1').value : "",
+            stdQ2: (!areaLower.includes("kanzaki") && !areaLower.includes("sakai")) ? document.getElementById('stdQ2').value : "",
             messageEncouragement: document.getElementById('messageEncouragement').value,
             interacFeedback: document.getElementById('interacFeedback').value
         };
