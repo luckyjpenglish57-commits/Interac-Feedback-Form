@@ -30,7 +30,6 @@
         input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.15); }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-        .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
         
         .step { display: none; }
         .step.active { display: block; }
@@ -102,9 +101,9 @@
                     </select>
                 </div>
 
-                <!-- 3 Columns for Grade, Class, and Group No. -->
-                <div class="grid-3">
-                    <div class="form-group">
+                <!-- Dynamic Grid for Grade, Class, Group/Zoom -->
+                <div class="grid-3" id="classGrid">
+                    <div class="form-group" id="gradeGroup">
                         <label>Grade *</label>
                         <select id="grade" required onchange="onSchoolOrGradeChange()">
                             <option value="" disabled selected>-- Grade --</option>
@@ -132,23 +131,25 @@
                             <option value="Class 6">Class 6</option>
                             <option value="Class 7">Class 7</option>
                             <option value="Class 8">Class 8</option>
-                            <option value="Class 9">Class 9</option>
-                            <option value="Class 10">Class 10</option>
-                            <option value="Class A">Class A</option>
-                            <option value="Class B">Class B</option>
-                            <option value="Class C">Class C</option>
-                            <option value="Class D">Class D</option>
+                            <option value="Class 9" class="non-sakai">Class 9</option>
+                            <option value="Class 10" class="non-sakai">Class 10</option>
                         </select>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="groupNumWrapper">
                         <label>Group No.</label>
                         <select id="groupNum" onchange="onSchoolOrGradeChange()">
                             <option value="" selected>-- None --</option>
                         </select>
                     </div>
+                    <div class="form-group hidden" id="zoomRoomWrapper">
+                        <label>Zoom Room Number *</label>
+                        <select id="zoomRoom">
+                            <option value="" disabled selected>-- Room --</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" id="groupNameWrapper">
                     <label id="groupLabel">Group Name / Meeting Group Email *</label>
                     <select id="groupName" required>
                         <option value="" disabled selected>-- Select School, Grade & Class first --</option>
@@ -160,7 +161,7 @@
                     <span class="badge">Sakai City Fields</span>
                     <div class="grid-2">
                         <div class="form-group">
-                            <label>Students' / Attendance Number *</label>
+                            <label>Students' Attendance Number *</label>
                             <input type="text" id="studentNo" placeholder="e.g. 15">
                         </div>
                         <div class="form-group">
@@ -174,7 +175,7 @@
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" id="numStudentsWrapper">
                     <label>Number of Students *</label>
                     <select id="numStudents" required>
                         <option value="" disabled selected>-- Select --</option>
@@ -262,33 +263,35 @@
                         </div>
                     </div>
 
-                    <!-- 3. Sakai City Questions -->
+                    <!-- 3. Sakai City Questions (Q1 - Q3 Thumbs Up) -->
                     <div id="sakaiQuestions" class="hidden">
-                        <span class="badge">Sakai City Self-Reflection Evaluation</span>
-                        <p style="font-size: 0.85rem; margin-bottom: 12px; color: #475569;">Enter student's self-reflection score for each question (1 👍 to 4 👍👍👍👍):</p>
-                        <div class="grid-4">
+                        <span class="badge">Evaluation (Enter the student's self-reflection score)</span>
+                        <div class="grid-3">
                             <div class="form-group">
-                                <label>Q1 👍 *</label>
+                                <label>Q1 *</label>
                                 <select id="sakaiQ1" class="sakai-calc">
-                                    <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+                                    <option value="1">1 👍</option>
+                                    <option value="2">2 👍👍</option>
+                                    <option value="3">3 👍👍👍</option>
+                                    <option value="4">4 👍👍👍👍</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Q2 👍 *</label>
+                                <label>Q2 *</label>
                                 <select id="sakaiQ2" class="sakai-calc">
-                                    <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+                                    <option value="1">1 👍</option>
+                                    <option value="2">2 👍👍</option>
+                                    <option value="3">3 👍👍👍</option>
+                                    <option value="4">4 👍👍👍👍</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Q3 👍 *</label>
+                                <label>Q3 *</label>
                                 <select id="sakaiQ3" class="sakai-calc">
-                                    <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Q4 👍 *</label>
-                                <select id="sakaiQ4" class="sakai-calc">
-                                    <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+                                    <option value="1">1 👍</option>
+                                    <option value="2">2 👍👍</option>
+                                    <option value="3">3 👍👍👍</option>
+                                    <option value="4">4 👍👍👍👍</option>
                                 </select>
                             </div>
                         </div>
@@ -329,12 +332,12 @@
                 </div>
 
                 <div class="form-group" style="margin-top: 15px;">
-                    <label id="msgLabel">Please write a message of encouragement or feedback for your student(s). *If your student did not show up, please leave them a positive comment about English.</label>
+                    <label id="msgLabel">Please write a message of encouragement or feedback for your student(s).</label>
                     <textarea id="messageEncouragement" rows="3" placeholder="Your feedback comment..."></textarea>
                 </div>
 
                 <div class="form-group" id="interacNotesGroup">
-                    <label>Any comments or feedback for Interac about this lesson.</label>
+                    <label id="interacLabel">Any comments or feedback for Interac about this lesson.</label>
                     <textarea id="interacFeedback" rows="2" placeholder="Your comments/notes..."></textarea>
                 </div>
 
@@ -389,6 +392,15 @@
             groupNum.appendChild(opt);
         }
 
+        // Populate Zoom Room Numbers (Room 1 to Room 40)
+        const zoomRoom = document.getElementById("zoomRoom");
+        for (let i = 1; i <= 40; i++) {
+            const opt = document.createElement("option");
+            opt.value = `Room ${i}`;
+            opt.textContent = `Room ${i}`;
+            zoomRoom.appendChild(opt);
+        }
+
         document.querySelectorAll('.sakai-calc').forEach(select => {
             select.addEventListener('change', calculateSakaiTotal);
         });
@@ -398,8 +410,7 @@
         const q1 = parseInt(document.getElementById('sakaiQ1').value) || 0;
         const q2 = parseInt(document.getElementById('sakaiQ2').value) || 0;
         const q3 = parseInt(document.getElementById('sakaiQ3').value) || 0;
-        const q4 = parseInt(document.getElementById('sakaiQ4').value) || 0;
-        document.getElementById('sakaiTotalPoints').value = q1 + q2 + q3 + q4 + " Points";
+        document.getElementById('sakaiTotalPoints').value = (q1 + q2 + q3) + " Points";
     }
 
     function populateTeachers() {
@@ -468,48 +479,76 @@
         setRequired("lessonUnit", false);
         setRequired("chikuseiPT1", false);
         setRequired("chikuseiPT2", false);
+        setRequired("zoomRoom", false);
 
         const groupLabel = document.getElementById("groupLabel");
         const msgLabel = document.getElementById("msgLabel");
+        const interacLabel = document.getElementById("interacLabel");
         const areaLower = selectedArea.toLowerCase();
 
-        if (areaLower.includes("kanzaki")) {
-            document.getElementById("kanzakiQuestions").classList.remove("hidden");
-            setRequired("kanzakiListening", true);
-            setRequired("kanzakiSpeaking", true);
-            setRequired("kanzakiProactiveness", true);
-            setRequired("kanzakiAttitude", true);
-            groupLabel.textContent = "Group Email (Same for all grades/classes) *";
-            msgLabel.textContent = "Please write a message of encouragement or feedback for your student(s). *If your student did not show up, please leave them a positive comment about English.";
-        } 
-        else if (areaLower.includes("chikusei")) {
-            document.getElementById("chikuseiQuestions").classList.remove("hidden");
-            document.getElementById("standardQuestions").classList.remove("hidden");
-            setRequired("stdQ1", true);
-            setRequired("stdQ2", true);
-            groupLabel.textContent = "Group Name / Meeting Group Email *";
-            msgLabel.textContent = "Please write a message of encouragement or feedback for your student(s). *If your student did not show up, please leave them a positive comment about English.";
-            toggleChikuseiPT();
-        } 
-        else if (areaLower.includes("sakai")) {
+        // Sakai City Adjustments
+        if (areaLower.includes("sakai")) {
+            document.getElementById("gradeGroup").classList.add("hidden");
+            document.getElementById("groupNumWrapper").classList.add("hidden");
+            document.getElementById("groupNameWrapper").classList.add("hidden");
+            document.getElementById("numStudentsWrapper").classList.add("hidden");
+            document.getElementById("zoomRoomWrapper").classList.remove("hidden");
+            
             document.getElementById("sakaiQuestions").classList.remove("hidden");
             document.getElementById("sakaiFields").classList.remove("hidden");
+
+            setRequired("grade", false);
+            setRequired("groupName", false);
+            setRequired("numStudents", false);
+            setRequired("zoomRoom", true);
             setRequired("studentNo", true);
             setRequired("studentName", true);
             setRequired("lessonUnit", true);
-            groupLabel.textContent = "Zoom Room Number (Same for all grades/classes) *";
-            msgLabel.textContent = "Please share the feedback you gave to the students:";
-            calculateSakaiTotal();
-        } 
-        else {
-            document.getElementById("standardQuestions").classList.remove("hidden");
-            setRequired("stdQ1", true);
-            setRequired("stdQ2", true);
-            groupLabel.textContent = "Group Name / Meeting Group Email *";
-            msgLabel.textContent = "Please write a message of encouragement or feedback for your student(s). *If your student did not show up, please leave them a positive comment about English.";
 
-            if (areaLower.includes("nishigo")) {
-                document.getElementById("interacNotesGroup").classList.add("hidden");
+            msgLabel.textContent = "Please share the feedback you gave to the students.";
+            interacLabel.textContent = "Thank you for your cooperation. If you have anything to share, please feel free to add your notes here.";
+            calculateSakaiTotal();
+        } else {
+            document.getElementById("gradeGroup").classList.remove("hidden");
+            document.getElementById("groupNumWrapper").classList.remove("hidden");
+            document.getElementById("groupNameWrapper").classList.remove("hidden");
+            document.getElementById("numStudentsWrapper").classList.remove("hidden");
+            document.getElementById("zoomRoomWrapper").classList.add("hidden");
+
+            setRequired("grade", true);
+            setRequired("groupName", true);
+            setRequired("numStudents", true);
+
+            interacLabel.textContent = "Any comments or feedback for Interac about this lesson.";
+
+            if (areaLower.includes("kanzaki")) {
+                document.getElementById("kanzakiQuestions").classList.remove("hidden");
+                setRequired("kanzakiListening", true);
+                setRequired("kanzakiSpeaking", true);
+                setRequired("kanzakiProactiveness", true);
+                setRequired("kanzakiAttitude", true);
+                groupLabel.textContent = "Group Email (Same for all grades/classes) *";
+                msgLabel.textContent = "Please write a message of encouragement or feedback for your student(s). *If your student did not show up, please leave them a positive comment about English.";
+            } 
+            else if (areaLower.includes("chikusei")) {
+                document.getElementById("chikuseiQuestions").classList.remove("hidden");
+                document.getElementById("standardQuestions").classList.remove("hidden");
+                setRequired("stdQ1", true);
+                setRequired("stdQ2", true);
+                groupLabel.textContent = "Group Name / Meeting Group Email *";
+                msgLabel.textContent = "Please write a message of encouragement or feedback for your student(s). *If your student did not show up, please leave them a positive comment about English.";
+                toggleChikuseiPT();
+            } 
+            else {
+                document.getElementById("standardQuestions").classList.remove("hidden");
+                setRequired("stdQ1", true);
+                setRequired("stdQ2", true);
+                groupLabel.textContent = "Group Name / Meeting Group Email *";
+                msgLabel.textContent = "Please write a message of encouragement or feedback for your student(s). *If your student did not show up, please leave them a positive comment about English.";
+
+                if (areaLower.includes("nishigo")) {
+                    document.getElementById("interacNotesGroup").classList.add("hidden");
+                }
             }
         }
     }
@@ -544,11 +583,11 @@
         const groupNum = document.getElementById("groupNum").value;
         const groupSelect = document.getElementById("groupName");
 
+        if (!groupSelect) return;
         groupSelect.innerHTML = '<option value="" disabled selected>-- Select --</option>';
 
         if (!school) return;
 
-        // Search for exact match in Google Sheet dataset first
         const matchedGroup = sheetData.groups.find(g => 
             g.area === area && g.school === school && (g.grade === "All" || g.grade === grade) && (g.classNum === "All" || g.classNum === classNum)
         );
@@ -556,7 +595,6 @@
         if (matchedGroup) {
             let groupVal = matchedGroup.groupName;
             
-            // Append group number suffix if selected and not already included in groupName
             if (groupNum && !groupVal.includes(`_${groupNum}`)) {
                 const parts = groupVal.split("@");
                 groupVal = `${parts[0]}_${groupNum}@${parts[1]}`;
@@ -568,7 +606,6 @@
             groupSelect.appendChild(opt);
             groupSelect.value = groupVal;
         } else if (grade && classNum) {
-            // Auto-generate format: [School]_[Grade]-[Class]_[GroupNum]@lit.co.jp
             const cleanSchool = school.replace(/\s+/g, '');
             const gradeDigit = grade.replace(/[^0-9]/g, '');
             const classClean = classNum.replace("Class ", "");
@@ -628,11 +665,12 @@
             date: document.getElementById('date').value,
             area: area,
             school: document.getElementById('schoolSelect').value,
-            grade: document.getElementById('grade').value,
+            grade: areaLower.includes("sakai") ? "N/A" : document.getElementById('grade').value,
             classNum: document.getElementById('classNum').value,
-            groupNum: document.getElementById('groupNum').value,
-            groupName: document.getElementById('groupName').value,
-            numStudents: document.getElementById('numStudents').value,
+            groupNum: areaLower.includes("sakai") ? "" : document.getElementById('groupNum').value,
+            zoomRoom: areaLower.includes("sakai") ? document.getElementById('zoomRoom').value : "",
+            groupName: areaLower.includes("sakai") ? document.getElementById('zoomRoom').value : document.getElementById('groupName').value,
+            numStudents: areaLower.includes("sakai") ? "1" : document.getElementById('numStudents').value,
             studentNo: document.getElementById('studentNo') ? document.getElementById('studentNo').value : "",
             studentName: document.getElementById('studentName') ? document.getElementById('studentName').value : "",
             lessonUnit: document.getElementById('lessonUnit') ? document.getElementById('lessonUnit').value : "",
@@ -645,7 +683,6 @@
             sakaiQ1: areaLower.includes("sakai") ? document.getElementById('sakaiQ1').value : "",
             sakaiQ2: areaLower.includes("sakai") ? document.getElementById('sakaiQ2').value : "",
             sakaiQ3: areaLower.includes("sakai") ? document.getElementById('sakaiQ3').value : "",
-            sakaiQ4: areaLower.includes("sakai") ? document.getElementById('sakaiQ4').value : "",
             sakaiTotalPoints: areaLower.includes("sakai") ? document.getElementById('sakaiTotalPoints').value : "",
             stdQ1: (!areaLower.includes("kanzaki") && !areaLower.includes("sakai")) ? document.getElementById('stdQ1').value : "",
             stdQ2: (!areaLower.includes("kanzaki") && !areaLower.includes("sakai")) ? document.getElementById('stdQ2').value : "",
