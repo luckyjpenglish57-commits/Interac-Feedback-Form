@@ -3,58 +3,83 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lesson Plan Form</title>
+  <title>Lesson Form</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 20px;
+      padding: 20px;
+      background-color: #f9f9f9;
     }
+
     .form-group {
-      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+      width: 300px;
     }
+
     label {
-      display: block;
+      font-size: 14px;
       font-weight: bold;
-      margin-bottom: 5px;
+      color: #1a2b4c; /* Dark blue shade katulad ng sa screenshot */
+      margin-bottom: 6px;
     }
-    input[type="text"] {
-      width: 250px;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+
+    label .required {
+      color: #d9534f; /* Red asterisk */
+    }
+
+    .date-input {
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 1.5px solid #a85260; /* Dark pink / maroon border katulad ng sa screenshot */
+      border-radius: 8px;
+      outline: none;
+      background-color: #fff;
+      transition: border-color 0.2s ease-in-out;
+    }
+
+    .date-input:focus {
+      border-color: #800020;
+      box-shadow: 0 0 4px rgba(128, 0, 32, 0.2);
     }
   </style>
 </head>
 <body>
 
-  <h2>Lesson Information</h2>
-
-  <form id="lessonForm">
-    <div class="form-group">
-      <label for="lessonDate">Lesson Date (YYYY-MM-DD):</label>
-      <input type="text" id="lessonDate" name="lessonDate" placeholder="YYYY-MM-DD" maxlength="10">
-    </div>
-
-    <button type="submit">Submit</button>
-  </form>
+  <div class="form-group">
+    <label for="lessonDate">
+      Lesson Date <span class="required">*</span>
+    </label>
+    <input 
+      type="text" 
+      id="lessonDate" 
+      name="lessonDate" 
+      class="date-input" 
+      placeholder="YYYY-MM-DD" 
+      maxlength="10"
+      required
+    >
+  </div>
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       const dateInput = document.getElementById('lessonDate');
 
-      // 1. Awtomatikong ilagay ang petsa ngayon bilang default
+      // 1. Automatic: Kuhanin ang petsa ngayon at ilagay sa input field
       const today = new Date();
       const year = today.getFullYear();
       const month = String(today.getMonth() + 1).padStart(2, '0');
       const day = String(today.getDate()).padStart(2, '0');
+      
+      // Format: YYYY-MM-DD
       dateInput.value = `${year}-${month}-${day}`;
 
-      // 2. Automatic formatting habang nagta-type ang user (YYYY-MM-DD)
+      // 2. Automatic Format sa pagta-type (kung babaguhin man ng user ang petsa)
       dateInput.addEventListener('input', function (e) {
-        // Tanggalin ang lahat ng karakter na hindi numero
+        // Tanggalin ang anumang karakter na hindi numero
         let value = e.target.value.replace(/\D/g, '');
 
-        // Maglagay ng dash (-) pagkatapos ng Year at Month
+        // Kusa nitong lalagyan ng dash (-) sa YYYY-MM-DD format
         if (value.length > 4 && value.length <= 6) {
           value = value.slice(0, 4) + '-' + value.slice(4);
         } else if (value.length > 6) {
