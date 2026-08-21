@@ -30,6 +30,7 @@
         input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.15); }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
         
         .step { display: none; }
         .step.active { display: block; }
@@ -162,7 +163,7 @@
                     <div class="grid-2">
                         <div class="form-group">
                             <label>Students' Attendance Number *</label>
-                            <input type="text" id="studentNo" placeholder="e.g. 15">
+                            <input type="text" id="studentNo" placeholder="e.g. 2-4 15">
                         </div>
                         <div class="form-group">
                             <label>Student's Name *</label>
@@ -171,7 +172,7 @@
                     </div>
                     <div class="form-group">
                         <label>Lesson Unit *</label>
-                        <input type="text" id="lessonUnit" placeholder="e.g. Unit 3: Welcome to Japan">
+                        <input type="text" id="lessonUnit" placeholder="e.g. Unit 1">
                     </div>
                 </div>
 
@@ -263,10 +264,10 @@
                         </div>
                     </div>
 
-                    <!-- 3. Sakai City Questions (Q1 - Q3 Thumbs Up) -->
+                    <!-- 3. Sakai City Questions (Q1 - Q4 Thumbs Up) -->
                     <div id="sakaiQuestions" class="hidden">
                         <span class="badge">Evaluation (Enter the student's self-reflection score)</span>
-                        <div class="grid-3">
+                        <div class="grid-4">
                             <div class="form-group">
                                 <label>Q1 *</label>
                                 <select id="sakaiQ1" class="sakai-calc">
@@ -288,6 +289,15 @@
                             <div class="form-group">
                                 <label>Q3 *</label>
                                 <select id="sakaiQ3" class="sakai-calc">
+                                    <option value="1">1 👍</option>
+                                    <option value="2">2 👍👍</option>
+                                    <option value="3">3 👍👍👍</option>
+                                    <option value="4">4 👍👍👍👍</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Q4 *</label>
+                                <select id="sakaiQ4" class="sakai-calc">
                                     <option value="1">1 👍</option>
                                     <option value="2">2 👍👍</option>
                                     <option value="3">3 👍👍👍</option>
@@ -410,7 +420,8 @@
         const q1 = parseInt(document.getElementById('sakaiQ1').value) || 0;
         const q2 = parseInt(document.getElementById('sakaiQ2').value) || 0;
         const q3 = parseInt(document.getElementById('sakaiQ3').value) || 0;
-        document.getElementById('sakaiTotalPoints').value = (q1 + q2 + q3) + " Points";
+        const q4 = parseInt(document.getElementById('sakaiQ4').value) || 0;
+        document.getElementById('sakaiTotalPoints').value = (q1 + q2 + q3 + q4) + " Points";
     }
 
     function populateTeachers() {
@@ -683,6 +694,7 @@
             sakaiQ1: areaLower.includes("sakai") ? document.getElementById('sakaiQ1').value : "",
             sakaiQ2: areaLower.includes("sakai") ? document.getElementById('sakaiQ2').value : "",
             sakaiQ3: areaLower.includes("sakai") ? document.getElementById('sakaiQ3').value : "",
+            sakaiQ4: areaLower.includes("sakai") ? document.getElementById('sakaiQ4').value : "",
             sakaiTotalPoints: areaLower.includes("sakai") ? document.getElementById('sakaiTotalPoints').value : "",
             stdQ1: (!areaLower.includes("kanzaki") && !areaLower.includes("sakai")) ? document.getElementById('stdQ1').value : "",
             stdQ2: (!areaLower.includes("kanzaki") && !areaLower.includes("sakai")) ? document.getElementById('stdQ2').value : "",
