@@ -39,6 +39,7 @@
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--primary-hover); }
         .btn-secondary { background: #e2e8f0; color: var(--text); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
         
         .success-message { display: none; text-align: center; padding: 40px 20px; }
         .success-message h2 { color: var(--primary); margin-bottom: 8px; }
@@ -331,7 +332,7 @@
 
                 <div class="btn-group">
                     <button type="button" class="btn btn-secondary" onclick="prevStep()">← Back</button>
-                    <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                    <button type="submit" id="submitBtn" class="btn btn-primary">Submit Feedback</button>
                 </div>
             </div>
 
@@ -418,25 +419,17 @@
         const ptDetails = document.getElementById("ptDetails");
         if (hasPT === "Yes") {
             ptDetails.classList.remove("hidden");
+            setRequired("chikuseiPT1", true);
+            setRequired("chikuseiPT2", true);
         } else {
             ptDetails.classList.add("hidden");
+            setRequired("chikuseiPT1", false);
+            setRequired("chikuseiPT2", false);
         }
     }
 
-    function onAreaChange() {
-        const selectedArea = document.getElementById("areaSelect").value;
-        const schoolDropdown = document.getElementById("schoolSelect");
-
-        schoolDropdown.innerHTML = '<option value="" disabled selected>-- Select School --</option>';
-        const filteredSchools = sheetData.schools.filter(s => s.area === selectedArea);
-        filteredSchools.forEach(s => {
-            const opt = document.createElement("option");
-            opt.value = s.school;
-            opt.textContent = s.school;
-            schoolDropdown.appendChild(opt);
-        });
-
-        // Hide all custom sections first
+    function updateQuestionnaireVisibility(selectedArea) {
+        // Reset/Hide all questionnaire blocks
         document.getElementById("chikuseiQuestions").classList.add("hidden");
         document.getElementById("kanzakiQuestions").classList.add("hidden");
         document.getElementById("sakaiQuestions").classList.add("hidden");
@@ -444,6 +437,7 @@
         document.getElementById("sakaiFields").classList.add("hidden");
         document.getElementById("interacNotesGroup").classList.remove("hidden");
 
+        // Clear requirements
         setRequired("kanzakiListening", false);
         setRequired("kanzakiSpeaking", false);
         setRequired("kanzakiProactiveness", false);
@@ -453,6 +447,8 @@
         setRequired("studentNo", false);
         setRequired("studentName", false);
         setRequired("lessonUnit", false);
+        setRequired("chikuseiPT1", false);
+        setRequired("chikuseiPT2", false);
 
         const groupLabel = document.getElementById("groupLabel");
         const msgLabel = document.getElementById("msgLabel");
@@ -463,6 +459,7 @@
             setRequired("stdQ1", true);
             setRequired("stdQ2", true);
             groupLabel.textContent = "Group Name / Meeting Group Email *";
+            toggleChikuseiPT();
         } else if (selectedArea === "Kanzaki City") {
             document.getElementById("kanzakiQuestions").classList.remove("hidden");
             setRequired("kanzakiListening", true);
@@ -491,7 +488,22 @@
                 document.getElementById("interacNotesGroup").classList.add("hidden");
             }
         }
+    }
 
+    function onAreaChange() {
+        const selectedArea = document.getElementById("areaSelect").value;
+        const schoolDropdown = document.getElementById("schoolSelect");
+
+        schoolDropdown.innerHTML = '<option value="" disabled selected>-- Select School --</option>';
+        const filteredSchools = sheetData.schools.filter(s => s.area === selectedArea);
+        filteredSchools.forEach(s => {
+            const opt = document.createElement("option");
+            opt.value = s.school;
+            opt.textContent = s.school;
+            schoolDropdown.appendChild(opt);
+        });
+
+        updateQuestionnaireVisibility(selectedArea);
         onSchoolOrGradeChange();
     }
 
@@ -532,6 +544,7 @@
             opt.value = generated;
             opt.textContent = generated;
             groupSelect.appendChild(opt);
+            groupSelect.value = generated;
         }
     }
 
@@ -546,8 +559,8 @@
             return;
         }
 
-        // Trigger Area change to properly display dynamic questions
-        onAreaChange();
+        // Explicitly refresh section visibility before changing steps
+        updateQuestionnaireVisibility(area);
 
         document.getElementById("step1").classList.remove("active");
         document.getElementById("step2").classList.add("active");
@@ -562,6 +575,10 @@
 
     document.getElementById('feedbackForm').addEventListener('submit', function(e) {
         e.preventDefault();
+
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Submitting...";
 
         const area = document.getElementById('areaSelect').value;
         const hasPT = document.getElementById('hasPT') ? document.getElementById('hasPT').value : "No";
@@ -590,10 +607,10 @@
             sakaiQ3: area === "Sakai City" ? document.getElementById('sakaiQ3').value : "",
             sakaiQ4: area === "Sakai City" ? document.getElementById('sakaiQ4').value : "",
             sakaiTotalPoints: area === "Sakai City" ? document.getElementById('sakaiTotalPoints').value : "",
-            standardQ1: (area !== "Kanzaki City" && area !== "Sakai City") ? document.getElementById('stdQ1').value : "",
-            standardQ2: (area !== "Kanzaki City" && area !== "Sakai City") ? document.getElementById('stdQ2').value : "",
+            stdQ1: (area !== "Kanzaki City" && area !== "Sakai City") ? document.getElementById('stdQ1').value : "",
+            stdQ2: (area !== "Kanzaki City" && area !== "Sakai City") ? document.getElementById('stdQ2').value : "",
             messageEncouragement: document.getElementById('messageEncouragement').value,
-            interacFeedback: area !== "Nishigo" ? document.getElementById('interacFeedback').value : ""
+            interacFeedback: document.getElementById('interacFeedback').value
         };
 
         fetch(SCRIPT_URL, {
@@ -601,10 +618,17 @@
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
-        }).then(() => {
-            document.getElementById('formContainer').style.display = 'none';
+        })
+        .then(() => {
+            document.getElementById('formContainer').classList.add('hidden');
             document.getElementById('successMessage').style.display = 'block';
-        }).catch(err => alert("Error submitting form: " + err));
+        })
+        .catch(err => {
+            console.error('Submission error:', err);
+            alert('Failed to submit form. Please try again.');
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Submit Feedback";
+        });
     });
 </script>
 </body>
