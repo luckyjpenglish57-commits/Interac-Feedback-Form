@@ -609,36 +609,36 @@
         onSchoolOrGradeChange();
     }
 
-    function onSchoolOrGradeChange() {
-        const school = document.getElementById("schoolSelect").value;
-        const grade = document.getElementById("grade").value;
-        const classNum = document.getElementById("classNum").value;
-        const groupNum = document.getElementById("groupNum").value;
-        const groupDropdown = document.getElementById("groupName");
+  function onSchoolOrGradeChange() {
+    const school = document.getElementById("schoolSelect").value;
+    const grade = document.getElementById("grade").value;
+    const classNum = document.getElementById("classNum").value;
+    const groupNum = document.getElementById("groupNum").value;
+    const groupDropdown = document.getElementById("groupName");
 
-        if (!school) return;
+    if (!school) return;
 
-        groupDropdown.innerHTML = '<option value="" disabled selected>-- Select Group Name --</option>';
-        
-        let filteredGroups = sheetData.groups.filter(g => g.school === school);
-        
-        if (grade) {
-            filteredGroups = filteredGroups.filter(g => !g.grade || g.grade === grade);
-        }
-        if (classNum) {
-            filteredGroups = filteredGroups.filter(g => !g.classNum || g.classNum === classNum);
-        }
-        if (groupNum) {
-            filteredGroups = filteredGroups.filter(g => !g.groupNum || g.groupNum === groupNum);
-        }
-
-        filteredGroups.forEach(g => {
-            const opt = document.createElement("option");
-            opt.value = g.groupName;
-            opt.textContent = g.groupName;
-            groupDropdown.appendChild(opt);
-        });
+    groupDropdown.innerHTML = '<option value="" disabled selected>-- Select Group Name --</option>';
+    
+    let filteredGroups = sheetData.groups.filter(g => g.school === school);
+    
+    if (grade) {
+        filteredGroups = filteredGroups.filter(g => !g.grade || g.grade === grade);
     }
+    if (classNum) {
+        filteredGroups = filteredGroups.filter(g => !g.classNum || g.classNum === classNum);
+    }
+    if (groupNum) {
+        filteredGroups = filteredGroups.filter(g => !g.groupNum || g.groupNum === groupNum);
+    }
+
+    filteredGroups.forEach(g => {
+        const opt = document.createElement("option");
+        opt.value = g.groupName;
+        opt.textContent = g.groupName;
+        groupDropdown.appendChild(opt);
+    });
+}
 
     function nextStep() {
         const teacherInput = document.getElementById("teacherInput");
