@@ -609,36 +609,120 @@
         onSchoolOrGradeChange();
     }
 
-  function onSchoolOrGradeChange() {
-    const school = document.getElementById("schoolSelect").value;
-    const grade = document.getElementById("grade").value;
-    const classNum = document.getElementById("classNum").value;
-    const groupNum = document.getElementById("groupNum").value;
-    const groupDropdown = document.getElementById("groupName");
+    function onSchoolOrGradeChange() {
+        const area = document.getElementById("areaSelect").value;
+        const school = document.getElementById("schoolSelect").value;
+        const grade = document.getElementById("grade").value;
+        const classNum = document.getElementById("classNum").value;
+        const groupNum = document.getElementById("groupNum").value;
+        const groupSelect = document.getElementById("groupName");
 
-    if (!school) return;
+        if (!groupSelect) return;
 
-    groupDropdown.innerHTML = '<option value="" disabled selected>-- Select Group Name --</option>';
-    
-    let filteredGroups = sheetData.groups.filter(g => g.school === school);
-    
-    if (grade) {
-        filteredGroups = filteredGroups.filter(g => !g.grade || g.grade === grade);
-    }
-    if (classNum) {
-        filteredGroups = filteredGroups.filter(g => !g.classNum || g.classNum === classNum);
-    }
-    if (groupNum) {
-        filteredGroups = filteredGroups.filter(g => !g.groupNum || g.groupNum === groupNum);
-    }
+        groupSelect.innerHTML = '<option value="" disabled selected>-- Select --</option>';
 
-    filteredGroups.forEach(g => {
-        const opt = document.createElement("option");
-        opt.value = g.groupName;
-        opt.textContent = g.groupName;
-        groupDropdown.appendChild(opt);
-    });
-}
+        if (!school) return;
+
+        // Normalize text for safer matching
+        const normalizeText = value =>
+            String(value ?? "")
+                .trim()
+                .toLowerCase()
+                .replace(/\s+/g, " ");
+
+        // Extract number from values such as:
+        // "5th Grade" -> "5"
+        // "5th"       -> "5"
+        // "Class 3"   -> "3"
+        const getNumber = value => {
+            const match = String(value ?? "").match(/\d+/);
+            return match ? String(parseInt(match[0], 10)) : "";
+        };
+
+        const gradeMatches = sheetGrade => {
+            const value = normalizeText(sheetGrade);
+
+            if (!value || value === "all") return true;
+
+            const sheetNumber = getNumber(sheetGrade);
+            const selectedNumber = getNumber(grade);
+
+            if (sheetNumber && selectedNumber) {
+                return sheetNumber === selectedNumber;
+            }
+
+            return value === normalizeText(grade);
+        };
+
+        const classMatches = sheetClass => {
+            const value = normalizeText(sheetClass);
+
+            if (!value || value === "all") return true;
+
+            const sheetNumber = getNumber(sheetClass);
+            const selectedNumber = getNumber(classNum);
+
+            if (sheetNumber && selectedNumber) {
+                return sheetNumber === selectedNumber;
+            }
+
+            return value === normalizeText(classNum);
+        };
+
+        // Find the base Group Name using Area + School + Grade + Class.
+        // Group No. is NOT used for matching because it is added afterward,
+        // following the behavior of the previous working portal.
+        const matchedGroup = sheetData.groups.find(g =>
+            normalizeText(g.area) === normalizeText(area) &&
+            normalizeText(g.school) === normalizeText(school) &&
+            gradeMatches(g.grade) &&
+            classMatches(g.classNum)
+        );
+
+        let groupVal = "";
+
+        if (matchedGroup && matchedGroup.groupName) {
+            groupVal = String(matchedGroup.groupName).trim();
+
+            // Automatically add Group No. before @ when selected.
+            // Example: abc@lit.co.jp -> abc_01@lit.co.jp
+            if (groupNum && !groupVal.includes(`_${groupNum}`)) {
+                if (groupVal.includes("@")) {
+                    const atPosition = groupVal.lastIndexOf("@");
+                    groupVal =
+                        groupVal.substring(0, atPosition) +
+                        `_${groupNum}` +
+                        groupVal.substring(atPosition);
+                } else {
+                    groupVal += `_${groupNum}`;
+                }
+            }
+        } else if (grade && classNum) {
+            // Fallback: automatically generate a Group Name when no matching
+            // Group Name is found in the Sheet.
+            // Example: UreshinoES_5-3_01@lit.co.jp
+            const cleanSchool = school.replace(/\s+/g, "");
+            const gradeDigit = getNumber(grade);
+            const classDigit = getNumber(classNum);
+
+            groupVal = `${cleanSchool}_${gradeDigit}-${classDigit}`;
+
+            if (groupNum) {
+                groupVal += `_${groupNum}`;
+            }
+
+            groupVal += "@lit.co.jp";
+        }
+
+        // Automatically display and select the Group Name.
+        if (groupVal) {
+            const opt = document.createElement("option");
+            opt.value = groupVal;
+            opt.textContent = groupVal;
+            groupSelect.appendChild(opt);
+            groupSelect.value = groupVal;
+        }
+    }
 
     function nextStep() {
         const teacherInput = document.getElementById("teacherInput");
