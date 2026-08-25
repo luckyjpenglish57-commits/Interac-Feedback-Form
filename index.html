@@ -144,9 +144,9 @@
                         </select>
                     </div>
                     <div class="form-group" id="groupNumWrapper">
-                        <label>Group No.</label>
-                        <select id="groupNum" onchange="onSchoolOrGradeChange()">
-                            <option value="" selected>-- None --</option>
+                        <label>Group No. *</label>
+                        <select id="groupNum" required onchange="onSchoolOrGradeChange()">
+                           <option value="" disabled selected>-- Select Group No. --</option>
                         </select>
                     </div>
                     <div class="form-group hidden" id="zoomRoomWrapper">
@@ -537,6 +537,7 @@
             document.getElementById("sakaiFields").classList.remove("hidden");
 
             setRequired("grade", false);
+            setRequired("groupNum", false);
             setRequired("groupName", false);
             setRequired("numStudents", false);
             setRequired("zoomRoom", true);
@@ -555,6 +556,7 @@
             document.getElementById("zoomRoomWrapper").classList.add("hidden");
 
             setRequired("grade", true);
+            setRequired("groupNum", true);
             setRequired("groupName", true);
             setRequired("numStudents", true);
 
