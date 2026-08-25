@@ -402,15 +402,9 @@
             numStudents.appendChild(opt);
         }
 
-        // Populate Group Numbers (01 to 30)
-        const groupNum = document.getElementById("groupNum");
-        for (let i = 1; i <= 30; i++) {
-            const val = i < 10 ? `0${i}` : `${i}`;
-            const opt = document.createElement("option");
-            opt.value = val;
-            opt.textContent = val;
-            groupNum.appendChild(opt);
-        }
+        // Populate default Group Numbers.
+        // The list is refreshed based on Area when the teacher selects an Area.
+        populateGroupNumbers(30);
 
         // Populate Zoom Room Numbers (Room 1 to Room 40)
         const zoomRoom = document.getElementById("zoomRoom");
@@ -597,9 +591,45 @@
         }
     }
 
+    function populateGroupNumbers(maxNumber) {
+        const groupNum = document.getElementById("groupNum");
+        if (!groupNum) return;
+
+        // Reset the list every time the Area changes.
+        groupNum.innerHTML =
+            '<option value="" disabled selected>-- Select Group No. --</option>';
+
+        for (let i = 1; i <= maxNumber; i++) {
+            const val = i < 10 ? `0${i}` : `${i}`;
+            const opt = document.createElement("option");
+            opt.value = val;
+            opt.textContent = val;
+            groupNum.appendChild(opt);
+        }
+    }
+
     function onAreaChange() {
         const selectedArea = document.getElementById("areaSelect").value;
         const schoolDropdown = document.getElementById("schoolSelect");
+        const areaLower = selectedArea.toLowerCase();
+
+        // Group No. ranges by Area:
+        // Kanzaki: 01-80
+        // Ureshino, Tottori, Chikusei, Hirao, Nishigo: 01-40
+        // Other Areas: 01-30
+        if (areaLower.includes("kanzaki")) {
+            populateGroupNumbers(80);
+        } else if (
+            areaLower.includes("ureshino") ||
+            areaLower.includes("tottori") ||
+            areaLower.includes("chikusei") ||
+            areaLower.includes("hirao") ||
+            areaLower.includes("nishigo")
+        ) {
+            populateGroupNumbers(40);
+        } else {
+            populateGroupNumbers(30);
+        }
 
         schoolDropdown.innerHTML = '<option value="" disabled selected>-- Select School --</option>';
         const filteredSchools = sheetData.schools.filter(s => s.area === selectedArea);
