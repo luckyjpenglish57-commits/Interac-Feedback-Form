@@ -158,7 +158,7 @@
                 </div>
 
                 <div class="form-group" id="groupNameWrapper">
-                    <label id="groupLabel">Group Name / Meeting Group Email *</label>
+                    <label id="groupLabel">Group Name *</label>
                     <select id="groupName" required>
                         <option value="" disabled selected>-- Select School, Grade & Class first --</option>
                     </select>
@@ -566,7 +566,7 @@
                 setRequired("kanzakiSpeaking", true);
                 setRequired("kanzakiProactiveness", true);
                 setRequired("kanzakiAttitude", true);
-                groupLabel.textContent = "Group Email (Same for all grades/classes) *";
+                groupLabel.textContent = "Group Name *";
                 msgLabel.textContent = "Please write a message of encouragement or feedback for your student(s). *If your student did not show up, please leave them a positive comment about English.";
             } 
             else if (areaLower.includes("chikusei")) {
@@ -574,7 +574,7 @@
                 document.getElementById("standardQuestions").classList.remove("hidden");
                 setRequired("stdQ1", true);
                 setRequired("stdQ2", true);
-                groupLabel.textContent = "Group Name / Meeting Group Email *";
+                groupLabel.textContent = "Group Name *";
                 msgLabel.textContent = "Please write a message of encouragement or feedback for your student(s). *If your student did not show up, please leave them a positive comment about English.";
                 toggleChikuseiPT();
             } 
@@ -582,7 +582,7 @@
                 document.getElementById("standardQuestions").classList.remove("hidden");
                 setRequired("stdQ1", true);
                 setRequired("stdQ2", true);
-                groupLabel.textContent = "Group Name / Meeting Group Email *";
+                groupLabel.textContent = "Group Name *";
                 msgLabel.textContent = "Please write a message of encouragement or feedback for your student(s). *If your student did not show up, please leave them a positive comment about English.";
 
                 if (areaLower.includes("nishigo")) {
