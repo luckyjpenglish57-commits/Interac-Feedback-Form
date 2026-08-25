@@ -69,7 +69,7 @@
                         type="text" 
                         id="teacherInput" 
                         list="teachersList" 
-                        placeholder="Type or select teacher name (e.g., Masami)..." 
+                        placeholder="Type or select teacher name (e.g., T. Masami)..." 
                         required 
                         oninput="autoFillEmail()" 
                         autocomplete="off"
@@ -686,8 +686,13 @@
         };
 
         // Read the Group No. ONLY from the Group Name already stored in the sheet.
-        // Example:
+        //
+        // Normal areas:
         // TTKonanGakuen_9-1_01@lit.co.jp -> "01"
+        //
+        // Kanzaki:
+        // Kanzaki City 1  -> "01"
+        // Kanzaki City 16 -> "16"
         const getGroupNumberFromName = groupName => {
             const name = String(groupName ?? "").trim();
             if (!name) return "";
@@ -696,7 +701,17 @@
                 ? name.substring(0, name.lastIndexOf("@"))
                 : name;
 
-            const match = localPart.match(/_(\d{1,2})$/);
+            let match;
+
+            if (normalizeText(area).includes("kanzaki")) {
+                // Kanzaki Group Names end with a normal number:
+                // "Kanzaki City 1", "Kanzaki City 2", ... "Kanzaki City 16"
+                match = localPart.match(/(\d{1,2})$/);
+            } else {
+                // Other Group Names use _01, _02, etc. before @lit.co.jp
+                match = localPart.match(/_(\d{1,2})$/);
+            }
+
             return match ? match[1].padStart(2, "0") : "";
         };
 
