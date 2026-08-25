@@ -69,7 +69,7 @@
                         type="text" 
                         id="teacherInput" 
                         list="teachersList" 
-                        placeholder="Type or select teacher name (e.g., T. Masami)..." 
+                        placeholder="Type or select teacher name (e.g., Masami)..." 
                         required 
                         oninput="autoFillEmail()" 
                         autocomplete="off"
@@ -160,8 +160,11 @@
                 <div class="form-group" id="groupNameWrapper">
                     <label id="groupLabel">Group Name *</label>
                     <select id="groupName" required>
-                        <option value="" disabled selected>-- Select School, Grade & Class first --</option>
+                        <option value="" disabled selected>-- Select School, Grade, Class & Group No. first --</option>
                     </select>
+                    <div id="groupNameError" style="display:none; margin-top:6px; color:#ef4444; font-size:0.82rem; font-weight:600;">
+                        No matching Group Name found. Please check the School, Grade, Class, and Group No.
+                    </div>
                 </div>
 
                 <!-- Sakai Specific Inputs -->
@@ -618,111 +621,131 @@
         const classNum = document.getElementById("classNum").value;
         const groupNum = document.getElementById("groupNum").value;
         const groupSelect = document.getElementById("groupName");
+        const groupError = document.getElementById("groupNameError");
 
         if (!groupSelect) return;
 
-        groupSelect.innerHTML = '<option value="" disabled selected>-- Select --</option>';
+        // Always reset the Group Name first.
+        groupSelect.innerHTML =
+            '<option value="" disabled selected>-- Select School, Grade, Class & Group No. first --</option>';
+        groupSelect.style.borderColor = "var(--border)";
+        groupSelect.style.boxShadow = "none";
+        groupSelect.setCustomValidity("");
 
-        if (!school) return;
+        if (groupError) {
+            groupError.style.display = "none";
+        }
 
-        // Normalize text for safer matching
+        // Do not show a Group Name until ALL four details are selected.
+        if (!school || !grade || !classNum || !groupNum) {
+            return;
+        }
+
+        // Normalize text for safer matching.
         const normalizeText = value =>
             String(value ?? "")
                 .trim()
                 .toLowerCase()
                 .replace(/\s+/g, " ");
 
-        // Extract number from values such as:
-        // "5th Grade" -> "5"
-        // "5th"       -> "5"
-        // "Class 3"   -> "3"
+        // Extract a number from values such as:
+        // "9th Grade" -> "9"
+        // "9th"       -> "9"
+        // "Class 1"   -> "1"
         const getNumber = value => {
             const match = String(value ?? "").match(/\d+/);
             return match ? String(parseInt(match[0], 10)) : "";
         };
 
+        // Match Grade/Class against the Groups sheet.
+        // "All" in the sheet is treated as an intentional wildcard.
         const gradeMatches = sheetGrade => {
             const value = normalizeText(sheetGrade);
-
-            if (!value || value === "all") return true;
+            if (value === "all") return true;
+            if (!value) return false;
 
             const sheetNumber = getNumber(sheetGrade);
             const selectedNumber = getNumber(grade);
 
-            if (sheetNumber && selectedNumber) {
-                return sheetNumber === selectedNumber;
-            }
-
-            return value === normalizeText(grade);
+            return !!sheetNumber &&
+                   !!selectedNumber &&
+                   sheetNumber === selectedNumber;
         };
 
         const classMatches = sheetClass => {
             const value = normalizeText(sheetClass);
-
-            if (!value || value === "all") return true;
+            if (value === "all") return true;
+            if (!value) return false;
 
             const sheetNumber = getNumber(sheetClass);
             const selectedNumber = getNumber(classNum);
 
-            if (sheetNumber && selectedNumber) {
-                return sheetNumber === selectedNumber;
-            }
-
-            return value === normalizeText(classNum);
+            return !!sheetNumber &&
+                   !!selectedNumber &&
+                   sheetNumber === selectedNumber;
         };
 
-        // Find the base Group Name using Area + School + Grade + Class.
-        // Group No. is NOT used for matching because it is added afterward,
-        // following the behavior of the previous working portal.
+        // Read the Group No. ONLY from the Group Name already stored in the sheet.
+        // Example:
+        // TTKonanGakuen_9-1_01@lit.co.jp -> "01"
+        const getGroupNumberFromName = groupName => {
+            const name = String(groupName ?? "").trim();
+            if (!name) return "";
+
+            const localPart = name.includes("@")
+                ? name.substring(0, name.lastIndexOf("@"))
+                : name;
+
+            const match = localPart.match(/_(\d{1,2})$/);
+            return match ? match[1].padStart(2, "0") : "";
+        };
+
+        // IMPORTANT:
+        // The Groups sheet is the ONLY source of Group Names.
+        // We do not generate a Group Name and we do not add a Group No. to it.
         const matchedGroup = sheetData.groups.find(g =>
             normalizeText(g.area) === normalizeText(area) &&
             normalizeText(g.school) === normalizeText(school) &&
             gradeMatches(g.grade) &&
-            classMatches(g.classNum)
+            classMatches(g.classNum) &&
+            getGroupNumberFromName(g.groupName) === String(groupNum).padStart(2, "0")
         );
 
-        let groupVal = "";
-
         if (matchedGroup && matchedGroup.groupName) {
-            groupVal = String(matchedGroup.groupName).trim();
+            // Use EXACTLY what is written in the Groups sheet.
+            const groupVal = String(matchedGroup.groupName).trim();
 
-            // Automatically add Group No. before @ when selected.
-            // Example: abc@lit.co.jp -> abc_01@lit.co.jp
-            if (groupNum && !groupVal.includes(`_${groupNum}`)) {
-                if (groupVal.includes("@")) {
-                    const atPosition = groupVal.lastIndexOf("@");
-                    groupVal =
-                        groupVal.substring(0, atPosition) +
-                        `_${groupNum}` +
-                        groupVal.substring(atPosition);
-                } else {
-                    groupVal += `_${groupNum}`;
-                }
-            }
-        } else if (grade && classNum) {
-            // Fallback: automatically generate a Group Name when no matching
-            // Group Name is found in the Sheet.
-            // Example: UreshinoES_5-3_01@lit.co.jp
-            const cleanSchool = school.replace(/\s+/g, "");
-            const gradeDigit = getNumber(grade);
-            const classDigit = getNumber(classNum);
-
-            groupVal = `${cleanSchool}_${gradeDigit}-${classDigit}`;
-
-            if (groupNum) {
-                groupVal += `_${groupNum}`;
-            }
-
-            groupVal += "@lit.co.jp";
-        }
-
-        // Automatically display and select the Group Name.
-        if (groupVal) {
             const opt = document.createElement("option");
             opt.value = groupVal;
             opt.textContent = groupVal;
+
+            groupSelect.innerHTML = "";
             groupSelect.appendChild(opt);
             groupSelect.value = groupVal;
+
+            groupSelect.style.borderColor = "var(--border)";
+            groupSelect.style.boxShadow = "none";
+            groupSelect.setCustomValidity("");
+
+            if (groupError) {
+                groupError.style.display = "none";
+            }
+        } else {
+            // No valid School + Grade + Class + Group No. combination exists.
+            groupSelect.innerHTML =
+                '<option value="" disabled selected>⚠ No matching Group Name</option>';
+
+            groupSelect.style.borderColor = "#ef4444";
+            groupSelect.style.boxShadow =
+                "0 0 0 3px rgba(239, 68, 68, 0.15)";
+
+            groupSelect.setCustomValidity(
+                "No matching Group Name was found. Please check the School, Grade, Class, and Group No."
+            );
+
+            if (groupError) {
+                groupError.style.display = "block";
+            }
         }
     }
 
