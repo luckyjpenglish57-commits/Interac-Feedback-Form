@@ -839,8 +839,15 @@
                 // "Kanzaki City 1", "Kanzaki City 2", ... "Kanzaki City 16"
                 match = localPart.match(/(\d{1,2})$/);
             } else {
-                // Other Group Names use _01, _02, etc. before @lit.co.jp
+                // Normal Group Names:
+                // TTKonanGakuen_9-1_01@lit.co.jp -> "01"
                 match = localPart.match(/_(\d{1,2})$/);
+
+                // Some Tottori rows use simple Group Names:
+                // "Group 1", "Group 2", "Group 3", etc.
+                if (!match) {
+                    match = localPart.match(/^group\s*(\d{1,2})$/i);
+                }
             }
 
             return match ? match[1].padStart(2, "0") : "";
