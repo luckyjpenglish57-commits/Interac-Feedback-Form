@@ -104,7 +104,7 @@
             <div class="step" id="step2">
                 <div class="form-group">
                     <label>School *</label>
-                    <select id="schoolSelect" required onchange="onSchoolOrGradeChange()">
+                    <select id="schoolSelect" required onchange="onSchoolOrGradeSelectionChange()">
                         <option value="" disabled selected>-- Select Area first --</option>
                     </select>
                 </div>
@@ -113,7 +113,7 @@
                 <div class="grid-3" id="classGrid">
                     <div class="form-group" id="gradeGroup">
                         <label>Grade *</label>
-                        <select id="grade" required onchange="onSchoolOrGradeChange()">
+                        <select id="grade" required onchange="onSchoolOrGradeSelectionChange()">
                             <option value="" disabled selected>-- Grade --</option>
                             <option value="1st Grade">1st Grade</option>
                             <option value="2nd Grade">2nd Grade</option>
@@ -130,17 +130,7 @@
                     <div class="form-group">
                         <label>Class *</label>
                         <select id="classNum" required onchange="onSchoolOrGradeChange()">
-                            <option value="" disabled selected>-- Class --</option>
-                            <option value="Class 1">Class 1</option>
-                            <option value="Class 2">Class 2</option>
-                            <option value="Class 3">Class 3</option>
-                            <option value="Class 4">Class 4</option>
-                            <option value="Class 5">Class 5</option>
-                            <option value="Class 6">Class 6</option>
-                            <option value="Class 7">Class 7</option>
-                            <option value="Class 8">Class 8</option>
-                            <option value="Class 9" class="non-sakai">Class 9</option>
-                            <option value="Class 10" class="non-sakai">Class 10</option>
+                            <option value="" disabled selected>-- Select School & Grade first --</option>
                         </select>
                     </div>
                     <div class="form-group" id="groupNumWrapper">
@@ -641,6 +631,115 @@
         });
 
         updateQuestionnaireVisibility(selectedArea);
+        populateClassOptions();
+        onSchoolOrGradeChange();
+    }
+
+    function normalizePortalText(value) {
+        return String(value ?? "")
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g, " ");
+    }
+
+    function gradeMatchesForClassList(sheetGrade, selectedGrade) {
+        const value = normalizePortalText(sheetGrade);
+
+        if (value === "all") return true;
+        if (!value || !selectedGrade) return false;
+
+        const getNumber = v => {
+            const match = String(v ?? "").match(/\d+/);
+            return match ? String(parseInt(match[0], 10)) : "";
+        };
+
+        const sheetNumber = getNumber(sheetGrade);
+        const selectedNumber = getNumber(selectedGrade);
+
+        return !!sheetNumber &&
+               !!selectedNumber &&
+               sheetNumber === selectedNumber;
+    }
+
+    function normalizeClassValue(value) {
+        return normalizePortalText(value)
+            .replace(/^class\s*/i, "")
+            .trim();
+    }
+
+    function populateClassOptions() {
+        const area = document.getElementById("areaSelect").value;
+        const school = document.getElementById("schoolSelect").value;
+        const grade = document.getElementById("grade").value;
+        const classSelect = document.getElementById("classNum");
+
+        if (!classSelect) return;
+
+        classSelect.innerHTML =
+            '<option value="" disabled selected>-- Select Class --</option>';
+
+        if (!area || !school || !grade) {
+            classSelect.innerHTML =
+                '<option value="" disabled selected>-- Select School & Grade first --</option>';
+            return;
+        }
+
+        const matchingRows = (sheetData.groups || []).filter(g =>
+            normalizePortalText(g.area) === normalizePortalText(area) &&
+            normalizePortalText(g.school) === normalizePortalText(school) &&
+            gradeMatchesForClassList(g.grade, grade)
+        );
+
+        const explicitClasses = [];
+        const seen = new Set();
+        let hasAllClass = false;
+
+        matchingRows.forEach(g => {
+            const rawClass = String(g.classNum ?? "").trim();
+            const normalizedClass = normalizePortalText(rawClass);
+
+            if (normalizedClass === "all") {
+                hasAllClass = true;
+                return;
+            }
+
+            if (!rawClass) return;
+
+            const key = normalizeClassValue(rawClass);
+
+            if (!seen.has(key)) {
+                seen.add(key);
+                explicitClasses.push(rawClass);
+            }
+        });
+
+        // If the Groups sheet has actual class names, use them exactly.
+        // This supports Class A, Class B, Class C, Class 1, etc.
+        if (explicitClasses.length > 0) {
+            explicitClasses.forEach(className => {
+                const opt = document.createElement("option");
+                opt.value = className;
+                opt.textContent = className;
+                classSelect.appendChild(opt);
+            });
+            return;
+        }
+
+        // Preserve the old behavior when the Groups sheet intentionally says "All"
+        // or has no class-specific row.
+        if (hasAllClass || matchingRows.length === 0) {
+            for (let i = 1; i <= 10; i++) {
+                const className = `Class ${i}`;
+                const opt = document.createElement("option");
+                opt.value = className;
+                opt.textContent = className;
+                classSelect.appendChild(opt);
+            }
+        }
+    }
+
+    function onSchoolOrGradeSelectionChange() {
+        populateClassOptions();
         onSchoolOrGradeChange();
     }
 
@@ -704,15 +803,17 @@
 
         const classMatches = sheetClass => {
             const value = normalizeText(sheetClass);
+
             if (value === "all") return true;
-            if (!value) return false;
+            if (!value || !classNum) return false;
 
-            const sheetNumber = getNumber(sheetClass);
-            const selectedNumber = getNumber(classNum);
+            const normalizeClass = classValue =>
+                normalizeText(classValue)
+                    .replace(/^class\s*/i, "")
+                    .trim();
 
-            return !!sheetNumber &&
-                   !!selectedNumber &&
-                   sheetNumber === selectedNumber;
+            return normalizeClass(sheetClass) ===
+                   normalizeClass(classNum);
         };
 
         // Read the Group No. ONLY from the Group Name already stored in the sheet.
